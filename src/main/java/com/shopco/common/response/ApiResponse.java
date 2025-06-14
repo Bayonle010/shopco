@@ -10,14 +10,16 @@ public class ApiResponse {
     private boolean status;
     private int statusCode;
     private String message;
+    private String details;
     private Object data;
     private Object metadata;
     private LocalDateTime timeStamp;
 
-    public ApiResponse(boolean status, int statusCode, String message, LocalDateTime timeStamp, Object metadata,  Object data) {
+    public ApiResponse(boolean status, int statusCode, String message,String details,  LocalDateTime timeStamp,   Object data, Object metadata) {
         this.status = status;
         this.statusCode = statusCode;
         this.message = message;
+        this.details = details;
         this.timeStamp = timeStamp;
         this.data = data;
         this.metadata = metadata;
