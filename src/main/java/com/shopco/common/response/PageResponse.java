@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.List;
 @Data
-public class PageResponse <T> {
+public class PageResponse <T> { // used for pagination
     private List<T> content;
     private int currentPage;
     private int totalPages;
