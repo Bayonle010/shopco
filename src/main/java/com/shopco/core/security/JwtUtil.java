@@ -1,4 +1,4 @@
-package com.shopco.common.security;
+package com.shopco.core.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -84,7 +85,7 @@ public class JwtUtil {
                 .expiresAt(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION_TIME))
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return UUID.randomUUID().toString() + jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
     public boolean isTokenExpired(Jwt token) {

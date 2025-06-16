@@ -1,4 +1,4 @@
-package com.shopco.common.security;
+package com.shopco.core.security;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyPair;

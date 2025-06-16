@@ -1,8 +1,8 @@
-package com.shopco.common.exception;
+package com.shopco.core.exception;
 
 
-import com.shopco.common.response.ApiResponse;
-import com.shopco.common.response.ResponseUtil;
+import com.shopco.core.response.ApiResponse;
+import com.shopco.core.response.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +36,7 @@ public class GlobalExceptionHandler {
     }
 
 
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ApiResponse> handleMissingPart(MissingServletRequestPartException ex) {
         log.error("An Unexpected error occurred: {}", ex.getMessage());
@@ -46,6 +47,8 @@ public class GlobalExceptionHandler {
                 "The required part '" + ex.getRequestPartName() + "' is not present", null);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
+
 
     // Handle unsupported media type (e.g., wrong Content-Type)
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -63,6 +66,8 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
+
+
 
 
     //Handle Custom exceptions (e.g UserAlreadyExistsException)
@@ -115,6 +120,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
+
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {

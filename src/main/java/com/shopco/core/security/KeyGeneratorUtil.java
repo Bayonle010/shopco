@@ -1,4 +1,4 @@
-package com.shopco.common.security;
+package com.shopco.core.security;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

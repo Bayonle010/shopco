@@ -1,6 +1,5 @@
-package com.shopco.common.response;
+package com.shopco.core.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,14 +14,14 @@ public class ApiResponse {
     private Object metadata;
     private LocalDateTime timeStamp;
 
-    public ApiResponse(boolean status, int statusCode, String message,String details,  LocalDateTime timeStamp,   Object data, Object metadata) {
+    public ApiResponse(boolean status, int statusCode, String message,String details,   Object data, Object metadata, LocalDateTime timeStamp) {
         this.status = status;
         this.statusCode = statusCode;
         this.message = message;
         this.details = details;
-        this.timeStamp = timeStamp;
         this.data = data;
         this.metadata = metadata;
+        this.timeStamp = timeStamp;
     }
 
 }

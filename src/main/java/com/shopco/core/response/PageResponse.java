@@ -1,6 +1,5 @@
-package com.shopco.common.response;
+package com.shopco.core.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;

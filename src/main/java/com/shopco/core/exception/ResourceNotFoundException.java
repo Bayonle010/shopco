@@ -1,4 +1,4 @@
-package com.shopco.common.exception;
+package com.shopco.core.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
