@@ -1793,3 +1793,53 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
 2025-06-17T13:51:56.933+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:51:56.920727990Z
 2025-06-17T13:52:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:52:56.920420167Z
 2025-06-17T13:52:56.926+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:52:56.920420167Z
+2025-06-17T13:53:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:53:56.920610553Z
+2025-06-17T13:53:56.929+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:53:56.920610553Z
+2025-06-17T13:54:11.835+01:00  INFO 209403 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-17T13:54:11.842+01:00  INFO 209403 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-06-17T13:54:11.863+01:00  INFO 209403 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-17T13:54:11.874+01:00  INFO 209403 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-06-17T13:54:11.906+01:00  INFO 209403 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-06-17T13:54:25.478+01:00  INFO 211974 --- [restartedMain] com.shopco.ShopcoApplication             : Starting ShopcoApplication using Java 21.0.6 with PID 211974 (/home/onadiran-bayonle/PROJECTS/shopco/target/classes started by onadiran-bayonle in /home/onadiran-bayonle/PROJECTS/shopco)
+2025-06-17T13:54:25.481+01:00  INFO 211974 --- [restartedMain] com.shopco.ShopcoApplication             : No active profile set, falling back to 1 default profile: "default"
+2025-06-17T13:54:25.558+01:00  INFO 211974 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-06-17T13:54:25.559+01:00  INFO 211974 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-06-17T13:54:27.352+01:00  INFO 211974 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-17T13:54:27.434+01:00  INFO 211974 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 68 ms. Found 3 JPA repository interfaces.
+2025-06-17T13:54:28.153+01:00  INFO 211974 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2025-06-17T13:54:28.180+01:00  INFO 211974 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-06-17T13:54:28.181+01:00  INFO 211974 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-17T13:54:28.237+01:00  INFO 211974 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-06-17T13:54:28.238+01:00  INFO 211974 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2678 ms
+2025-06-17T13:54:28.596+01:00  INFO 211974 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-17T13:54:28.674+01:00  INFO 211974 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-17T13:54:28.719+01:00  INFO 211974 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-06-17T13:54:29.017+01:00  INFO 211974 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-17T13:54:29.060+01:00  INFO 211974 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-06-17T13:54:29.533+01:00  INFO 211974 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@32773f7b
+2025-06-17T13:54:29.536+01:00  INFO 211974 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-06-17T13:54:29.584+01:00  WARN 211974 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-17T13:54:29.622+01:00  INFO 211974 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-17T13:54:30.896+01:00  INFO 211974 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-17T13:54:31.248+01:00  INFO 211974 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-17T13:54:32.531+01:00  INFO 211974 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-06-17T13:54:32.631+01:00  INFO 211974 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-17T13:54:33.636+01:00  WARN 211974 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-17T13:54:34.015+01:00  INFO 211974 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2025-06-17T13:54:34.122+01:00  WARN 211974 --- [restartedMain] thorizationManagerRequestMatcherRegistry : One of the patterns in [/swagger-ui/**, /api/v1/auth/**, /login/**, /oauth2/**, /v2/api-docs, /v3/api-docs, v3/api-docs/**, /swagger-resources/**, /swagger-resources/**, /configuration/ui, /configuration/security, webjars/**, /swagger-ui.html, /ws/**] is missing a leading slash. This is discouraged; please include the leading slash in all your request matcher patterns. In future versions of Spring Security, leaving out the leading slash will result in an exception.
+2025-06-17T13:54:35.090+01:00  INFO 211974 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-06-17T13:54:35.278+01:00  INFO 211974 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2025-06-17T13:54:35.311+01:00  INFO 211974 --- [restartedMain] com.shopco.ShopcoApplication             : Started ShopcoApplication in 10.554 seconds (process running for 11.241)
+2025-06-17T13:54:35.320+01:00  INFO 211974 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:54:35.320667560Z
+2025-06-17T13:54:35.437+01:00  INFO 211974 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:54:35.320667560Z
+2025-06-17T13:54:54.782+01:00  INFO 211974 --- [http-nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-17T13:54:54.783+01:00  INFO 211974 --- [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-06-17T13:54:54.791+01:00  INFO 211974 --- [http-nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 7 ms
+2025-06-17T13:54:56.526+01:00  INFO 211974 --- [http-nio-8081-exec-4] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 828 ms
