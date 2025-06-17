@@ -8,21 +8,23 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
+public interface TokenRepository extends JpaRepository<Token, Long> {
 
-    Optional<RefreshToken> findByToken(String token);
+    @Query("""
+      SELECT t FROM Token t WHERE t.user.id = :userId AND (t.expired = false OR t.revoked = false)
+    """)
+    List<Token> findAllValidTokensByUser(UUID userId);
+
+    Optional<Token> findByToken(String token);
 
     @Modifying
-    @Transactional
-    @Query("DELETE FROM RefreshToken rt WHERE rt.expiresAt < :now")
-    void deleteAllExpiredSince(@Param("now") Instant now);
-
-    @Modifying
-    @Transactional
-    void deleteByToken(String token);
+    @Query("DELETE FROM Token t WHERE t.expiresAt < :now")
+    void deleteExpiredTokens(Instant now);
 
 
 

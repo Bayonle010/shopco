@@ -1,5 +1,6 @@
 package com.shopco.user;
 
+import com.shopco.Authentication.refreshtoken.Token;
 import com.shopco.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -64,6 +65,9 @@ public class User  implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

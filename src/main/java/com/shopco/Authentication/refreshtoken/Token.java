@@ -1,10 +1,8 @@
 package com.shopco.Authentication.refreshtoken;
 
+import com.shopco.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -13,10 +11,11 @@ import java.time.LocalDateTime;
 
 @Setter
 @Getter
+@Builder
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
-public class RefreshToken {
+public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -24,12 +23,22 @@ public class RefreshToken {
     @Column(unique = true, nullable = false)
     private String token;
 
-    @Column(nullable = false)
-    private String userEmail;
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType;
 
-    @Column(nullable = false)
-    @CreationTimestamp
-    private LocalDateTime expiresAt;
+    private boolean expired;
+
+    private boolean revoked;
+
+    private Instant createdAt;
+
+    private Instant expiresAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+
 
 
 
