@@ -24,14 +24,6 @@ public class AuthController {
 
     //  TODO: write register logic here
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
-
-        AuthResponse response = authService.register(request);
-        return new ResponseEntity<>(ResponseUtil.success(
-                HttpStatus.CREATED.value(), "registered successfully", null, response, null
-        ), HttpStatus.CREATED);
-    }
 
 
 
