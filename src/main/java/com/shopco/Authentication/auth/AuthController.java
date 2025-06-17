@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,15 @@ public class AuthController {
 
 
     //  TODO: write register logic here
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
+
+        AuthResponse response = authService.register(request);
+        return new ResponseEntity<>(ResponseUtil.success(
+                HttpStatus.CREATED.value(), "registered successfully", null, response, null
+        ), HttpStatus.CREATED);
+    }
 
 
 
@@ -48,11 +58,11 @@ public class AuthController {
 
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse> refreshToken(HttpServletRequest request){
-        AuthResponse response = authService.refreshToken(request);
+    public ResponseEntity<ApiResponse> refreshToken(Authentication auth, HttpServletRequest request){
+        AuthResponse response = authService.refreshToken(auth, request);
 
         return ResponseEntity.ok(
-                ResponseUtil.success(HttpStatus.OK.value(), "User Refresh successfully", null, response, null)
+                ResponseUtil.success(HttpStatus.OK.value(), "User token Refresh successfully", null, response, null)
         );
     }
 

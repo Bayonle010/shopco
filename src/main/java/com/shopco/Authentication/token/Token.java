@@ -1,12 +1,10 @@
-package com.shopco.Authentication.refreshtoken;
+package com.shopco.Authentication.token;
 
 import com.shopco.user.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 
 @Setter
@@ -20,7 +18,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, length = 1000, nullable = false)
     private String token;
 
     @Enumerated(EnumType.STRING)
