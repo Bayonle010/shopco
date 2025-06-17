@@ -53,7 +53,8 @@ public  class AuthServiceImpl implements AuthService {
 
         Optional<User> userEmail = userRepository.findByEmail((request.getEmail().toLowerCase()));
         if(userEmail.isEmpty()) {
-            throw new BadCredentialsException("Invalid email or password");
+            log.info("User not found with email: {}", request.getEmail().toLowerCase());
+            throw new UsernameNotFoundException("Invalid email or password");
         }
 
         Authentication authentication = authenticationManager.authenticate(
