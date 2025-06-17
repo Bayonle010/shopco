@@ -6,6 +6,7 @@ import com.shopco.core.response.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -141,6 +142,17 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleUserNotFound(UsernameNotFoundException ex) {
+        log.warn("Authentication failed: {}", ex.getMessage()); // concise log
+
+        ApiResponse errorResponse = ResponseUtil.error(
+                HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), "Authentication failed", null
+        );
+
+        return new  ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+
+    }
 
 
 
