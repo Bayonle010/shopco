@@ -6,8 +6,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TokenService {
@@ -67,6 +67,16 @@ public class TokenService {
             tokenRepository.save(storedToken);
         }
 
+    }
+
+    public Optional<Token> getValidRefreshToken(String token){
+        return tokenRepository.findByToken(token)
+                .filter(t -> !t.isExpired() && !t.isRevoked());
+    }
+
+    public void revokeToken(Token token){
+        token.setExpired(true);
+        token.setRevoked(true);
     }
 
 }

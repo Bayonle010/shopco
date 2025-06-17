@@ -7,4 +7,5 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface AuthService {
     AuthResponse authenticate(AuthRequest authRequest);
     AuthResponse logout(HttpServletRequest request);
+    AuthResponse refreshToken(HttpServletRequest request);
 }

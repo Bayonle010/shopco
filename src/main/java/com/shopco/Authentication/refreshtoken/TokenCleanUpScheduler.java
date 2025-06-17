@@ -14,7 +14,7 @@ public class TokenCleanUpScheduler {
 
     private final TokenRepository tokenRepository;
 
-    @Scheduled(fixedRate = 1000 * 60)
+    @Scheduled(fixedRate = 1000 * 60 * 60)
     public void deleteExpiredTokens() {
         Instant now = Instant.now();
         log.info("Cleaning up expired Tokens at {}", now);
