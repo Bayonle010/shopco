@@ -58,4 +58,15 @@ public class TokenService {
 
     }
 
+    public void findAndRevokeToken(String token){
+
+        Token storedToken = tokenRepository.findByToken(token).orElse(null);
+        if(storedToken != null){
+            storedToken.setExpired(true);
+            storedToken.setRevoked(true);
+            tokenRepository.save(storedToken);
+        }
+
+    }
+
 }

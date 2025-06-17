@@ -2,11 +2,11 @@ package com.shopco.Authentication.auth;
 
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +33,15 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 ResponseUtil.success(HttpStatus.OK.value(), "User Login successfully", null, response, null)
+        );
+    }
+
+    public ResponseEntity<ApiResponse> logout(HttpServletRequest request){
+
+        AuthResponse response = authService.logout(request);
+
+        return ResponseEntity.ok(
+                ResponseUtil.success(HttpStatus.OK.value(), "User Logout successfully", null, response, null)
         );
     }
 

@@ -1,5 +1,6 @@
 package com.shopco.Authentication.auth;
 
+import com.shopco.Authentication.refreshtoken.Token;
 import com.shopco.Authentication.refreshtoken.TokenService;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.security.JwtUtil;
@@ -7,6 +8,8 @@ import com.shopco.role.RoleRepository;
 import com.shopco.user.User;
 import com.shopco.user.UserRepository;
 import com.shopco.user.UserResponse;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -72,6 +75,26 @@ public  class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userResponse(userResponse.convertUserToUserResponse(user))
+                .build();
+    }
+
+    @Override
+    public AuthResponse logout(HttpServletRequest request){
+        final String authHeader = request.getHeader("Authorization");
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+
+        final String jwtToken = authHeader.substring(7);
+
+        tokenService.findAndRevokeToken(jwtToken);
+
+
+
+        return  AuthResponse.builder()
+                .userResponse(null)
+                .accessToken(null)
+                .refreshToken(null)
                 .build();
     }
 

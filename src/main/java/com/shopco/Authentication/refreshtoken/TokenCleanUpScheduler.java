@@ -14,11 +14,13 @@ public class TokenCleanUpScheduler {
 
     private final TokenRepository tokenRepository;
 
-    @Scheduled(fixedRate = 1000 * 60 * 10)
+    @Scheduled(fixedRate = 1000 * 60)
     public void deleteExpiredTokens() {
         Instant now = Instant.now();
         log.info("Cleaning up expired Tokens at {}", now);
+
         tokenRepository.deleteExpiredTokens(now);
+
         log.info("Expired tokens cleaned up completed at {}", now);
     }
 }
