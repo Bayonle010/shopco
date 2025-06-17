@@ -5170,3 +5170,48 @@ java.lang.RuntimeException: could not execute statement [ERROR: duplicate key va
 2025-06-17T21:25:02.654+01:00  INFO 278239 --- [http-nio-8081-exec-8] c.s.Authentication.auth.AuthServiceImpl  : User details: RegisterRequest(username=string2, firstName=string, lastName=string, email=test2@gmail.com, password=User123#)
 2025-06-17T21:25:02.664+01:00  INFO 278239 --- [http-nio-8081-exec-8] c.s.Authentication.auth.AuthServiceImpl  : Saving new user: com.shopco.user.User@39d49e62
 2025-06-17T21:25:02.677+01:00  INFO 278239 --- [http-nio-8081-exec-8] c.s.Authentication.auth.AuthServiceImpl  : User registered successfully with ID: 908b7d5c-cf40-4577-aeaf-8d0a1d796b1d
+2025-06-17T22:02:50.919+01:00  INFO 278239 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-17T22:02:50.924+01:00  INFO 278239 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-06-17T22:02:50.936+01:00  INFO 278239 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-17T22:02:50.945+01:00  INFO 278239 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-06-17T22:02:50.961+01:00  INFO 278239 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-06-17T22:03:05.829+01:00  INFO 293563 --- [restartedMain] com.shopco.ShopcoApplication             : Starting ShopcoApplication using Java 21.0.6 with PID 293563 (/home/onadiran-bayonle/PROJECTS/shopco/target/classes started by onadiran-bayonle in /home/onadiran-bayonle/PROJECTS/shopco)
+2025-06-17T22:03:05.833+01:00  INFO 293563 --- [restartedMain] com.shopco.ShopcoApplication             : No active profile set, falling back to 1 default profile: "default"
+2025-06-17T22:03:05.931+01:00  INFO 293563 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-06-17T22:03:05.932+01:00  INFO 293563 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-06-17T22:03:07.691+01:00  INFO 293563 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-17T22:03:07.785+01:00  INFO 293563 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 78 ms. Found 3 JPA repository interfaces.
+2025-06-17T22:03:08.641+01:00  INFO 293563 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2025-06-17T22:03:08.670+01:00  INFO 293563 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-06-17T22:03:08.670+01:00  INFO 293563 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-17T22:03:08.737+01:00  INFO 293563 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-06-17T22:03:08.737+01:00  INFO 293563 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2805 ms
+2025-06-17T22:03:09.240+01:00  INFO 293563 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-17T22:03:09.342+01:00  INFO 293563 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-17T22:03:09.410+01:00  INFO 293563 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-06-17T22:03:09.910+01:00  INFO 293563 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-17T22:03:09.987+01:00  INFO 293563 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-06-17T22:03:10.533+01:00  INFO 293563 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6e5c9edd
+2025-06-17T22:03:10.535+01:00  INFO 293563 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-06-17T22:03:10.595+01:00  WARN 293563 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-17T22:03:10.635+01:00  INFO 293563 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.8
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-17T22:03:12.615+01:00  INFO 293563 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-17T22:03:13.159+01:00  INFO 293563 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-17T22:03:15.666+01:00  INFO 293563 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-06-17T22:03:15.795+01:00  INFO 293563 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-17T22:03:17.061+01:00  WARN 293563 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-17T22:03:17.573+01:00  INFO 293563 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2025-06-17T22:03:17.703+01:00  WARN 293563 --- [restartedMain] thorizationManagerRequestMatcherRegistry : One of the patterns in [/swagger-ui/**, /api/v1/auth/**, /login/**, /oauth2/**, /v2/api-docs, /v3/api-docs, v3/api-docs/**, /swagger-resources/**, /swagger-resources/**, /configuration/ui, /configuration/security, webjars/**, /swagger-ui.html, /ws/**] is missing a leading slash. This is discouraged; please include the leading slash in all your request matcher patterns. In future versions of Spring Security, leaving out the leading slash will result in an exception.
+2025-06-17T22:03:18.320+01:00  INFO 293563 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-06-17T22:03:18.428+01:00  INFO 293563 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2025-06-17T22:03:18.462+01:00  INFO 293563 --- [restartedMain] com.shopco.ShopcoApplication             : Started ShopcoApplication in 13.623 seconds (process running for 14.665)
+2025-06-17T22:03:18.472+01:00  INFO 293563 --- [scheduling-1] c.s.A.token.TokenCleanUpScheduler        : Cleaning up expired Tokens at 2025-06-17T21:03:18.471982831Z
+2025-06-17T22:03:18.606+01:00  INFO 293563 --- [scheduling-1] c.s.A.token.TokenCleanUpScheduler        : Expired tokens cleaned up completed at 2025-06-17T21:03:18.471982831Z
+2025-06-17T22:03:18.609+01:00  INFO 293563 --- [restartedMain] com.shopco.role.RoleInitializer          : Initializing role for users
