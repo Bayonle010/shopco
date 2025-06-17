@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info =  @Info(
-                contact = @Contact(name = "BayFi ltd", url = "?", email = "support@bayfi.com"),
-                title = "OpenAI specification: BayFi",
+                contact = @Contact(name = "Shop.co", url = "?", email = "support@shopco.com"),
+                title = "OpenAI specification: Shopco",
                 version = "1.0",
                 license = @License(name = "MIT license", url = "https://choosealicense.com/licenses/mit/"),
                 termsOfService = "Terms of Service"
@@ -22,9 +22,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 
         servers = {
-                @Server(description = "localhost server ", url = "http://localhost:8000"),
-                @Server(description = "localhost server for docker", url = "http://localhost:8080"),
-                @Server(description = "Test server", url = "https://bayfi.onrender.com")
+                @Server(description = "localhost server ", url = "http://localhost:8081"),
+                //@Server(description = "localhost server for docker", url = "http://localhost:8080"),
+               // @Server(description = "Test server", url = "https://bayfi.onrender.com")
         },
         security = {@SecurityRequirement(name = "bearerAuth")}
 )
