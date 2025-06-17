@@ -1,8 +1,10 @@
 package com.shopco.Authentication.auth;
 
-import com.shopco.Authentication.refreshtoken.Token;
-import com.shopco.Authentication.refreshtoken.TokenService;
+import com.shopco.Authentication.token.Token;
+import com.shopco.Authentication.token.TokenService;
+import com.shopco.core.exception.InvalidCredentialException;
 import com.shopco.core.security.JwtUtil;
+import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
 import com.shopco.user.User;
 import com.shopco.user.UserRepository;
@@ -19,6 +21,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Slf4j
@@ -47,6 +51,8 @@ public  class AuthServiceImpl implements AuthService {
 
 
 
+
+
     //Authentication Logic
     @Override
     public AuthResponse authenticate(AuthRequest request) {
@@ -57,25 +63,36 @@ public  class AuthServiceImpl implements AuthService {
             throw new UsernameNotFoundException("Invalid email or password");
         }
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
 
-        User  user = (User) authentication.getPrincipal();
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        String accessToken = jwtUtil.generateToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
+            User  user = (User) authentication.getPrincipal();
 
-        tokenService.revokeAllUserTokens(user);
+            String accessToken = jwtUtil.generateToken(authentication, user);
+            String refreshToken = jwtUtil.generateRefreshToken(authentication, user);
 
-        tokenService.saveUserToken(user, refreshToken);
+            tokenService.revokeAllUserTokens(user);
+
+            tokenService.saveUserToken(user, refreshToken);
 
 
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .userResponse(UserResponse.convertUserToUserResponse(user))
-                .build();
+            return AuthResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .userResponse(UserResponse.convertUserToUserResponse(user))
+                    .build();
+
+
+        }catch (BadCredentialsException e) {
+            log.info("Bad credentials");
+            throw new InvalidCredentialException("Invalid email or password");
+        }
+
+
+
     }
 
     @Override
@@ -100,7 +117,7 @@ public  class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse refreshToken(HttpServletRequest request){
+    public AuthResponse refreshToken(Authentication auth, HttpServletRequest request){
         final String authHeader = request.getHeader("Authorization");
 
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -122,8 +139,8 @@ public  class AuthServiceImpl implements AuthService {
 
         tokenService.revokeToken(storedToken);
 
-        String newAccessToken = jwtUtil.generateToken(user);
-        String newRefreshToken = jwtUtil.generateRefreshToken(user);
+        String newAccessToken = jwtUtil.generateToken(auth, user);
+        String newRefreshToken = jwtUtil.generateRefreshToken(auth, user);
 
         tokenService.saveUserToken(user, newRefreshToken);
 

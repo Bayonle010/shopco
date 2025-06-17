@@ -1,4 +1,4 @@
-package com.shopco.Authentication.refreshtoken;
+package com.shopco.Authentication.token;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ public class TokenCleanUpScheduler {
 
     private final TokenRepository tokenRepository;
 
-    @Scheduled(fixedRate = 1000 * 60 * 60)
+    @Scheduled(fixedRate = 1000 * 60 * 60) //deleting every 1 hour
     public void deleteExpiredTokens() {
         Instant now = Instant.now();
         log.info("Cleaning up expired Tokens at {}", now);

@@ -154,6 +154,18 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse> handleBadCredentials(UsernameNotFoundException ex) {
+        log.warn("Bad Credentials: {}", ex.getMessage()); // concise log
+
+        ApiResponse errorResponse = ResponseUtil.error(
+                HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), "Authentication Failed", null
+        );
+
+        return new  ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+
+    }
+
 
 
 

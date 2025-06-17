@@ -1,4 +1,4 @@
-package com.shopco.Authentication.refreshtoken;
+package com.shopco.Authentication.token;
 
 import com.shopco.user.User;
 import org.springframework.security.oauth2.jwt.Jwt;

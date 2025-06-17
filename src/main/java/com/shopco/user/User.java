@@ -1,6 +1,6 @@
 package com.shopco.user;
 
-import com.shopco.Authentication.refreshtoken.Token;
+import com.shopco.Authentication.token.Token;
 import com.shopco.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
