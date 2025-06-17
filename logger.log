@@ -1783,3 +1783,13 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
 2025-06-17T13:46:56.926+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:46:56.920405620Z
 2025-06-17T13:47:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:47:56.920715250Z
 2025-06-17T13:47:56.934+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:47:56.920715250Z
+2025-06-17T13:48:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:48:56.920654446Z
+2025-06-17T13:48:56.935+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:48:56.920654446Z
+2025-06-17T13:49:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:49:56.920781766Z
+2025-06-17T13:49:56.932+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:49:56.920781766Z
+2025-06-17T13:50:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:50:56.920692165Z
+2025-06-17T13:50:56.930+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:50:56.920692165Z
+2025-06-17T13:51:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:51:56.920727990Z
+2025-06-17T13:51:56.933+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:51:56.920727990Z
+2025-06-17T13:52:56.920+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Cleaning up expired Tokens at 2025-06-17T12:52:56.920420167Z
+2025-06-17T13:52:56.926+01:00  INFO 209403 --- [scheduling-1] c.s.A.r.TokenCleanUpScheduler            : Expired tokens cleaned up completed at 2025-06-17T12:52:56.920420167Z
