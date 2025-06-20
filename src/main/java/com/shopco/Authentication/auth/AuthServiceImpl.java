@@ -2,9 +2,10 @@ package com.shopco.Authentication.auth;
 
 import com.shopco.Authentication.token.Token;
 import com.shopco.Authentication.token.TokenService;
+import com.shopco.core.exception.EmailAlreadyExistsException;
 import com.shopco.core.exception.InvalidCredentialException;
+import com.shopco.core.exception.UsernameAlreadyExistsException;
 import com.shopco.core.security.JwtUtil;
-import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
 import com.shopco.user.User;
 import com.shopco.user.UserRepository;
@@ -21,8 +22,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Slf4j
@@ -48,10 +47,31 @@ public  class AuthServiceImpl implements AuthService {
     }
 
     //Implement Registration logic here
+    @Override
+    public AuthResponse register(AuthRegister request) {
 
+        boolean userEmail = userRepository.existsByEmail((request.getEmail().toLowerCase()));
+        if (userEmail){
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
 
+        boolean userUsername = userRepository.existsByUsername(request.getUsername());
+        if (userUsername) {
+            throw new UsernameAlreadyExistsException("Username is already taken");
+        }
+        User user = new User();
+        user.setFirstname(request.getFirstname());
+        user.setLastname(request.getLastname());
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        userRepository.save(user);
 
+        return AuthResponse.builder()
+                .userResponse(UserResponse.convertUserToUserResponse(user))
+                .build();
+    }
 
     //Authentication Logic
     @Override

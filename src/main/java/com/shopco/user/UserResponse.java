@@ -1,9 +1,7 @@
 package com.shopco.user;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
@@ -14,6 +12,7 @@ public class UserResponse {
     private String email;
     private String firstName;
     private String lastName;
+    private String userName;
 
 
     public static UserResponse convertUserToUserResponse(User user) {
@@ -22,6 +21,7 @@ public class UserResponse {
                 .email(user.getEmail())
                 .firstName(user.getFirstname())
                 .lastName(user.getLastname())
+                .userName(user.getUsername())
                 .build();
     }
 }
