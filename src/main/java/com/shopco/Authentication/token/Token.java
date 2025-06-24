@@ -5,40 +5,36 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
-
+@Builder
 @Setter
 @Getter
-@Builder
+@Table(name = "tokens")
+@NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@NoArgsConstructor
 public class Token {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Column(unique = true, length = 1000, nullable = false)
-    private String token;
+    private String token; // hashed refresh token
 
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
-    private boolean expired;
-
     private boolean revoked;
 
-    private Instant createdAt;
-
-    private Instant expiresAt;
+    private boolean expired;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    private Instant createdAt;
 
-
-
+    private Instant expiresAt;
 
 
 }

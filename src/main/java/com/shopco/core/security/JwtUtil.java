@@ -1,24 +1,27 @@
 package com.shopco.core.security;
 
-import com.shopco.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Component
+
 @Slf4j
+@Service
 public class JwtUtil {
 
-    private final static Long JWT_EXPIRATION_TIME = 15 * 60 * 1000L;  // set to 15 minutes
+    private final static Long ACCESS_TOKEN_DURATION_MS = 15 * 60 * 1000L;  // set to 15 minutes
     // NOTE => 1000L = 1000ms = 1s
-    public final static long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000L; // 7days
+    private final static long REFRESH_TOKEN_DURATION_MS =   24 * 60 * 60 * 1000L; // set to 24 hours
 
 
     private final JwtEncoder jwtEncoder;
@@ -30,72 +33,81 @@ public class JwtUtil {
         this.jwtDecoder = jwtDecoder;
     }
 
-    public String generateToken(Authentication auth, User user){
-        log.info("Generating JWT  access token for user: {}", user);
+    public String generateAccessToken(Authentication auth, String email){
+        return buildToken(auth, email, ACCESS_TOKEN_DURATION_MS);
+    }
+
+    public String generateRefreshToken(Authentication auth, String email){
+        String tokenId = UUID.randomUUID().toString();
+        log.info("tokenId generated {}", tokenId);
+        return buildTokenWithTokenId(auth, email, REFRESH_TOKEN_DURATION_MS, tokenId);
+    }
+
+    public String buildToken(Authentication auth, String userEmail, Long expirationTime) {
+        log.info("Generating JWT for user: {}", userEmail);
 
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
-                .toList();
+                .collect(Collectors.toList());
+
 
         if (roles.isEmpty()) {
             roles.add("ROLE_USER"); // Default role if no authorities are found
         }
 
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("bayfi")
+                .issuedAt(Instant.now())
+                .subject(userEmail)
+                .claim("roles", roles)
+                .expiresAt(Instant.now().plusMillis(expirationTime))
+                .build();
 
-
-
-        return  jwtEncoder.encode(JwtEncoderParameters.from(
-                JwtClaimsSet.builder()
-                        .issuer("shopco")
-                        .issuedAt(Instant.now())
-                        .expiresAt(Instant.now().plusMillis(JWT_EXPIRATION_TIME))
-                        .subject(user.getEmail())
-                        .claim("roles", roles)
-                        .build()
-        )).getTokenValue();
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-
-    public String generateRefreshToken(Authentication auth, User user){
-
-        log.info("Generating JWT  refresh token for user: {}", user);
-
+    public String buildTokenWithTokenId(Authentication auth, String userEmail, Long expirationTime, String tokenId) {
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
-                .toList();
+                .collect(Collectors.toList());
 
+        if (roles.isEmpty()) {
+            roles.add("ROLE_USER");
+        }
 
-        return  jwtEncoder.encode(JwtEncoderParameters.from(
-                JwtClaimsSet.builder()
-                        .issuer("shopco")
-                        .issuedAt(Instant.now())
-                        .expiresAt(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION_TIME))
-                        .subject(user.getEmail())
-                        .claim("roles", roles)
-                        .build()
-        )).getTokenValue();
+        Instant now = Instant.now();
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("bayfi")
+                .issuedAt(now)
+                .expiresAt(now.plusMillis(expirationTime))
+                .subject(userEmail)
+                .claim("roles", roles)
+                .claim("tokenId", tokenId) // Important
+                .build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public boolean isTokenValid(String token, User user){
-        try{
-            return extractUsername(token).equals(user.getEmail()) && !isTokenExpired(token);
-        }catch (Exception ex){
-            return false;
+
+    public Jwt decodeJwt(String token) {
+
+        try {
+            Jwt decodedToken =  jwtDecoder.decode(token);
+            log.info("Decoded Jwt Token, result = {}", decodedToken);
+            return decodedToken;
+        } catch (Exception e) {
+            log.error("Failed to decode JWT token", e);
+            throw new RuntimeException("Invalid JWT token", e);
         }
     }
 
-    public  String extractUsername(String token){
-        return jwtDecoder.decode(token).getSubject();
+    public Collection<? extends GrantedAuthority> extractAuthorities(Jwt jwt) {
+        // Extract roles from the JWT and convert them to GrantedAuthority objects
+        List<String> roles = jwt.getClaimAsStringList("roles");
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
-
-    public boolean isTokenExpired(String token){
-        return Objects.requireNonNull(jwtDecoder.decode(token).getExpiresAt()).isBefore(Instant.now());
-    }
-
-    public Instant getExpirationTime(String token){
-        return jwtDecoder.decode(token).getExpiresAt();
-    }
-
 }
