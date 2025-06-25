@@ -36,7 +36,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse> handleEmailConflict(EmailAlreadyExistsException ex) {
+        ApiResponse errorResponse = ResponseUtil.error(HttpStatus.CONFLICT.value(),
+                    ex.getMessage(), "Duplicate email", null);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse> handleUsernameConflict(UsernameAlreadyExistsException ex) {
+        ApiResponse errorResponse = ResponseUtil.error(HttpStatus.CONFLICT.value(),
+                    ex.getMessage(), "Duplicate Username", null);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ApiResponse> handleMissingPart(MissingServletRequestPartException ex) {
@@ -68,10 +80,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
-
-
-
-    //Handle Custom exceptions (e.g UserAlreadyExistsException)
+    //Handle Custom exceptions (eg. UserAlreadyExistsException)
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<ApiResponse> handleUserAlreadyExistsException(UserAlreadyExistException e){
 

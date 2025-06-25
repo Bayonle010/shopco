@@ -50,6 +50,7 @@ public  class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(AuthRegister request) {
 
+        log.info("registering user with email {}",request.getEmail());
         boolean userEmail = userRepository.existsByEmail((request.getEmail().toLowerCase()));
         if (userEmail){
             throw new EmailAlreadyExistsException("Email already exists");
@@ -63,7 +64,7 @@ public  class AuthServiceImpl implements AuthService {
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
         user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
+        user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
