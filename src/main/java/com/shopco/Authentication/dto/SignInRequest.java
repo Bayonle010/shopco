@@ -1,14 +1,16 @@
-package com.shopco.Authentication.auth;
+package com.shopco.Authentication.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class AuthRequest {
+public class SignInRequest {
 
     @NotNull(message = "email field cannot be null")
     @NotBlank(message = "email field is required")
+    @Email(message = "invalid email format")
     private String email;
 
     @NotBlank(message = "password field is required")

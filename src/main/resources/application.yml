@@ -16,6 +16,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  output:
+    ansi:
+      enabled: ALWAYS
+
   servlet:
     multipart:
       enabled: true
