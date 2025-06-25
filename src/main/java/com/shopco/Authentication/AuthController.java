@@ -25,8 +25,37 @@ public class AuthController {
     }
 
 
-    //  TODO: write register logic here
+    @Operation(
+            summary = "Register a new user",
+            description = """
+        Creates a new user account with the following required fields:
 
+        - **firstname**: Must not be blank.
+        - **lastname**: Must not be blank.
+        - **email**: Must be a valid email format and cannot be blank.
+        - **username**: Must not be blank.
+        - **password**: Must meet strict security requirements.
+
+        **Password Requirements**:
+        - Minimum of 8 characters.
+        - Must contain at least:
+            - One uppercase letter,
+            - One lowercase letter,
+            - One digit,
+            - One special character (e.g., @#$%^&+=!).
+        - Must not contain any whitespace.
+
+        On successful registration, the user can log in through the `/login` endpoint to receive authentication tokens.
+    """
+    )
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid  SignUpRequest request){
+        AuthResponse response = authService.registerUser(request);
+        return new ResponseEntity<>(ResponseUtil.success(
+                HttpStatus.CREATED.value(), "registration successful", response,  null
+        ), HttpStatus.CREATED);
+    }
 
 
     @Operation(
@@ -48,6 +77,8 @@ public class AuthController {
                 HttpStatus.OK.value(), "user authenticated successfully", response, null
         ), HttpStatus.OK);
     }
+
+
 
     @Operation(
             summary = "Generate a new access token",

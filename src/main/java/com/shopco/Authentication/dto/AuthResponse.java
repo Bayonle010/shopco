@@ -1,6 +1,6 @@
 package com.shopco.Authentication.dto;
 
-import com.shopco.user.UserResponse;
+import com.shopco.user.UserDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,5 +9,5 @@ import lombok.Data;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
-    private UserResponse userDto;
+    private UserDto userDto;
 }

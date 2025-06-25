@@ -1,32 +1,32 @@
 package com.shopco.user;
 
 import com.shopco.role.Role;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
-public class UserResponse {
+public class UserDto {
     private UUID id;
+    private String username;
     private String email;
     private String firstName;
     private String lastName;
-    private String username;
     private String role;
+    private String userType;
 
 
+    public static UserDto convertUserEntityToUserDto(User user) {
 
-    public static UserResponse convertUserToUserResponse(User user) {
         List<String> roles = user.getRoles()
                 .stream()
                 .map(Role::getAuthority)
                 .toList();
-        return UserResponse.builder()
+        
+        return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
@@ -34,5 +34,6 @@ public class UserResponse {
                 .lastName(user.getLastname())
                 .role(String.valueOf(roles))
                 .build();
+
     }
 }
