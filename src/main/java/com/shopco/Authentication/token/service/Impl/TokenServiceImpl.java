@@ -4,11 +4,12 @@ import com.shopco.Authentication.token.Token;
 import com.shopco.Authentication.token.TokenRepository;
 import com.shopco.Authentication.token.TokenType;
 import com.shopco.Authentication.token.service.TokenService;
+import com.shopco.core.exception.InvalidCredentialException;
 import com.shopco.core.exception.ResourceNotFoundException;
 import com.shopco.user.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,10 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void revokeAllUserTokens(User user) {
         List<Token> validTokens = tokenRepository.findAllValidTokensByUser(user.getId());
+
+
         if (validTokens.isEmpty()) {
-            throw new ResourceNotFoundException("invalid token");
+            throw new InvalidCredentialException("user already logged out");
         }
 
 
@@ -60,6 +63,8 @@ public class TokenServiceImpl implements TokenService {
             token.setExpired(true);
         });
 
+        tokenRepository.saveAll(validTokens);
+
 
     }
 
@@ -67,11 +72,10 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public boolean isRefreshTokenValid(String refreshToken, User user) {
         String tokenDecodedFromJwt = jwtDecoder.decode(refreshToken).getClaim("tokenId");
-        log.info("token decoded from jjwt {}", tokenDecodedFromJwt);
 
-        Token token = tokenRepository.findByToken(tokenDecodedFromJwt).orElseThrow(()-> new ResourceNotFoundException("token not found"));
+        Token token = tokenRepository.findByToken(tokenDecodedFromJwt).orElseThrow(()-> new InvalidCredentialException("token not found"));
         if (token.isExpired() || token.isRevoked()){
-            throw new BadCredentialsException("token is no longer valid");
+            throw new InvalidCredentialException("token is no longer valid");
         }
         return true;
     }

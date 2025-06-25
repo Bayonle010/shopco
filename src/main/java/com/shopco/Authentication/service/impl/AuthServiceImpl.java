@@ -3,32 +3,27 @@ package com.shopco.Authentication.service.impl;
 import com.shopco.Authentication.dto.AuthResponse;
 import com.shopco.Authentication.dto.RefreshTokenRequest;
 import com.shopco.Authentication.dto.SignInRequest;
-import com.shopco.Authentication.dto.SignUpRequest;
 import com.shopco.Authentication.service.AuthService;
 import com.shopco.Authentication.token.service.Impl.TokenServiceImpl;
-import com.shopco.core.exception.ResourceNotFoundException;
+import com.shopco.core.exception.InvalidCredentialException;
 import com.shopco.core.security.JwtUtil;
-import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
 import com.shopco.user.User;
 import com.shopco.user.UserRepository;
 import com.shopco.user.UserResponse;
-import jakarta.persistence.RollbackException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Slf4j
@@ -55,47 +50,53 @@ public  class AuthServiceImpl implements AuthService {
 
 
 
-
     @Override
     public AuthResponse authenticateUser(SignInRequest signInRequest){
+        String formatedEmailFromRequest = signInRequest.getEmail().toLowerCase();
 
-        Optional<User> user = userRepository.findByEmail(signInRequest.getEmail().toLowerCase());
+        Optional<User> user = userRepository.findByEmail(formatedEmailFromRequest);
 
         if(user.isEmpty()){
-            log.info("User not found with email: {}", signInRequest.getEmail().toLowerCase());
+            log.info("User not found with email: {}", formatedEmailFromRequest);
             throw new UsernameNotFoundException("invalid email or password");
         }
 
-
-
         log.info("attempting to authenticate with email {}" , signInRequest.getEmail());
-        Authentication authentication = authenticationManager.authenticate(
 
-                new UsernamePasswordAuthenticationToken(signInRequest.getEmail().toLowerCase(), signInRequest.getPassword())
-        );
-        log.info("User authenticated successfully. Generating JWT token...");
+        try {
 
-        // return jwt token.
-        String accessToken = jwtUtil.generateAccessToken(authentication, signInRequest.getEmail().toLowerCase());
+            Authentication authentication = authenticationManager.authenticate(
 
-        String refreshToken = jwtUtil.generateRefreshToken(authentication, signInRequest.getEmail());
+                    new UsernamePasswordAuthenticationToken(formatedEmailFromRequest, signInRequest.getPassword())
+            );
+            log.info("User authenticated successfully. Generating JWT token...");
 
-        tokenService.saveRefreshToken(user.get(), refreshToken);
+            // return jwt token.
+            String accessToken = jwtUtil.generateAccessToken(authentication, formatedEmailFromRequest);
 
-        UserResponse userInfo = UserResponse.convertUserToUserResponse(user.get());
+            String refreshToken = jwtUtil.generateRefreshToken(authentication, formatedEmailFromRequest);
+
+            tokenService.saveRefreshToken(user.get(), refreshToken);
+
+            UserResponse userInfo = UserResponse.convertUserToUserResponse(user.get());
 
 
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .userDto(userInfo)
-                .build();
+            return AuthResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .userDto(userInfo)
+                    .build();
+
+        }catch (AuthenticationException e){
+            log.error("Invalid email or Password {}", e.getMessage());
+            throw new InvalidCredentialException("invalid email or password");
+        }
 
     }
 
 
     @Override
-    public String refreshToken(RefreshTokenRequest request) {
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
 
         String refreshToken = request.getRefreshToken();
 
@@ -110,11 +111,13 @@ public  class AuthServiceImpl implements AuthService {
 
 
         if (userOptional.isEmpty()){
-            throw new ResourceNotFoundException("user not found");
+            throw new InvalidCredentialException("user with the token not found");
         }
 
 
         User user = userOptional.get();
+
+        log.info("user with email {} + owns the jwt", userOptional.get());
 
         boolean isValidToken = tokenService.isRefreshTokenValid(refreshToken, user);
 
@@ -125,7 +128,11 @@ public  class AuthServiceImpl implements AuthService {
                 user.getEmail(), null, user.getAuthorities());
 
 
-        return jwtUtil.generateAccessToken(authentication, user.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(authentication, user.getEmail());
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .build();
     }
 
 
@@ -135,18 +142,18 @@ public  class AuthServiceImpl implements AuthService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ResourceNotFoundException("token not found");
+            throw new InvalidCredentialException("token not found");
         }
 
         String token = authHeader.substring(7); // Remove "Bearer "
-        Jwt decodedJwt = jwtUtil.decodeJwt(token);
 
+        Jwt decodedJwt = jwtUtil.decodeJwt(token);
 
         String email = decodedJwt.getSubject(); // user email
 
         log.info("decode user email {}", email);
 
-        User user = userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("user not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new InvalidCredentialException("invalid token : user with the passed token not found"));
 
         tokenService.revokeAllUserTokens(user);
 

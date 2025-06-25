@@ -10,7 +10,7 @@ public interface AuthService {
 
     AuthResponse authenticateUser(SignInRequest signInRequest);
 
-    String refreshToken(RefreshTokenRequest refreshTokenRequest);
+    AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
 
     void logout(HttpServletRequest httpServletRequest);
 }

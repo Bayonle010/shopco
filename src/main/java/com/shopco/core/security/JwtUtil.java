@@ -1,5 +1,6 @@
 package com.shopco.core.security;
 
+import com.shopco.core.exception.InvalidCredentialException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -99,7 +100,7 @@ public class JwtUtil {
             return decodedToken;
         } catch (Exception e) {
             log.error("Failed to decode JWT token", e);
-            throw new RuntimeException("Invalid JWT token", e);
+            throw new InvalidCredentialException("Invalid JWT token");
         }
     }
 

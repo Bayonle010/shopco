@@ -29,7 +29,18 @@ public class AuthController {
 
 
 
-    @Operation(summary = "Authenticate a user", description = "access token valid for 15 mins and refresh token valid for 24 hours")
+    @Operation(
+            summary = "Authenticate a user",
+            description = """
+        Authenticates a user with email and password.
+        On successful authentication, two tokens are returned:
+
+        - **Access Token**: Valid for 15 minutes. Used for accessing secured endpoints.
+        - **Refresh Token**: Valid for 24 hours. Can be used to obtain a new access token without requiring the user to log in again.
+
+        **Note**: The access token should be sent in the `Authorization` header as `Bearer <token>` when accessing protected resources.
+    """
+    )
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> authenticateUser(@RequestBody @Valid SignInRequest signInRequest){
         AuthResponse response = authService.authenticateUser(signInRequest);
@@ -38,16 +49,45 @@ public class AuthController {
         ), HttpStatus.OK);
     }
 
-    @Operation(summary = "generate a new access token", description = "the new access token expires in 15 minutes")
+    @Operation(
+            summary = "Generate a new access token",
+            description = """
+        Uses a valid refresh token to generate a new short-lived access token.
+       \s
+        - **New Access Token**: Expires in 15 minutes.
+        - This endpoint should be called whenever the current access token expires to maintain a seamless user experience.
+       \s
+        **Headers**:
+        - The refresh token must be passed in the `Authorization` header as `Bearer <refresh_token>`.
+       \s
+        **Note**: If the refresh token has expired or has been revoked (e.g., after logout), a new access token will not be issued.
+   \s"""
+    )
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest request){
-        String refreshToken = authService.refreshToken(request);
+        AuthResponse refreshToken = authService.refreshToken(request);
 
         return new ResponseEntity<>(ResponseUtil.success(
                 HttpStatus.OK.value(), "new access token generated successfully", refreshToken, null
         ), HttpStatus.OK);
     }
 
+
+    @Operation(
+            summary = "Sign out a user from the application",
+            description = """
+        Logs the user out by revoking their refresh token.
+       \s
+        - This endpoint expects a valid **Access Token** in the `Authorization` header (as `Bearer <token>`).
+        - Alternatively, a **Refresh Token** can also be used — in this case, the refresh token will be marked as expired and revoked, and cannot be reused to generate new access tokens.
+       \s
+        **Behavior**:
+        - All active refresh tokens for the user will be revoked, ending all sessions.
+        - Once logged out, the user must log in again to receive new tokens.
+       \s
+        **Security Note**: Always ensure tokens are securely stored and transmitted over HTTPS.
+   \s"""
+    )
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(HttpServletRequest request){
 
