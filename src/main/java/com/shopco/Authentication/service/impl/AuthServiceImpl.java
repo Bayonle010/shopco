@@ -6,6 +6,7 @@ import com.shopco.Authentication.dto.SignInRequest;
 import com.shopco.Authentication.dto.SignUpRequest;
 import com.shopco.Authentication.service.AuthService;
 import com.shopco.Authentication.token.service.Impl.TokenServiceImpl;
+import com.shopco.core.exception.EmailAlreadyExistsException;
 import com.shopco.core.exception.InvalidCredentialException;
 import com.shopco.core.exception.UsernameAlreadyExistsException;
 import com.shopco.core.security.JwtUtil;
@@ -65,7 +66,7 @@ public  class AuthServiceImpl implements AuthService {
         Optional<User> existingUserByEmail = userRepository.findByEmail(formatedEmailFromRequest);
         if (existingUserByEmail.isPresent()) {
             log.error("User registration failed: email already exists {}", formatedEmailFromRequest);
-            throw new UsernameAlreadyExistsException("Email already exists: " + formatedEmailFromRequest);
+            throw new EmailAlreadyExistsException("Email already exists: " + formatedEmailFromRequest);
         }
 
 

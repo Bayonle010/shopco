@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiResponse> handleEmailConflict(EmailAlreadyExistsException ex) {
         ApiResponse errorResponse = ResponseUtil.error(HttpStatus.CONFLICT.value(),
-                    ex.getMessage(), "Duplicate email", null);
+                    ex.getMessage(), "Duplicate Email", null);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
