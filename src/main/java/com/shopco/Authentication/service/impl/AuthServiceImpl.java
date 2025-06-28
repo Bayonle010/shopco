@@ -95,7 +95,7 @@ public  class AuthServiceImpl implements AuthService {
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)
-                .isEnabled(true)
+                .isEnabled(false)
                 .build();
 
         //Initialize roles if null
