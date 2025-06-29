@@ -114,6 +114,8 @@ public  class AuthServiceImpl implements AuthService {
 
         log.info("User registered successfully with ID: {}", savedUser.getId());
 
+        //TODO: Send verification email to the user
+
         return AuthResponse.builder()
                 .accessToken(null)
                 .refreshToken(null)

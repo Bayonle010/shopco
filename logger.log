@@ -1,2 +1,2 @@
-2025-06-28T00:44:57.926Z  INFO 12012 --- [scheduling-1] c.s.A.t.service.Impl.TokenServiceImpl    : Cleaning up expired Tokens at 2025-06-28T00:44:57.922647300Z
-2025-06-28T00:44:58.295Z  INFO 12012 --- [scheduling-1] c.s.A.t.service.Impl.TokenServiceImpl    : Expired tokens cleaned up completed at 2025-06-28T00:44:57.922647300Z
+2025-06-29T00:44:57.924Z  INFO 12012 --- [scheduling-1] c.s.A.t.service.Impl.TokenServiceImpl    : Cleaning up expired Tokens at 2025-06-29T00:44:57.924191200Z
+2025-06-29T00:44:58.005Z  INFO 12012 --- [scheduling-1] c.s.A.t.service.Impl.TokenServiceImpl    : Expired tokens cleaned up completed at 2025-06-29T00:44:57.924191200Z
