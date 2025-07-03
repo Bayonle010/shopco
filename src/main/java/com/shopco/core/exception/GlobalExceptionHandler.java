@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
 
         ApiResponse errorResponse = ResponseUtil.error(
                 HttpStatus.CONFLICT.value(), e.getMessage(), "user already exist", null);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(InvalidCredentialException.class)
