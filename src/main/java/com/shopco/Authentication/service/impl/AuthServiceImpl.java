@@ -10,11 +10,13 @@ import com.shopco.core.exception.EmailAlreadyExistsException;
 import com.shopco.core.exception.InvalidCredentialException;
 import com.shopco.core.exception.UsernameAlreadyExistsException;
 import com.shopco.core.security.JwtUtil;
+import com.shopco.mail.MailTokenService;
 import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
-import com.shopco.user.User;
-import com.shopco.user.UserDto;
-import com.shopco.user.UserRepository;
+import com.shopco.user.entity.User;
+import com.shopco.user.model.UserDto;
+import com.shopco.user.repositories.UserRepository;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -41,23 +43,25 @@ public  class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final TokenServiceImpl tokenService;
+    private final MailTokenService mailTokenService;
 
 
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenServiceImpl tokenService) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenServiceImpl tokenService, MailTokenService mailTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.mailTokenService = mailTokenService;
     }
 
     @Transactional
     @Override
-    public AuthResponse registerUser(SignUpRequest request) {
+    public AuthResponse registerUser(SignUpRequest request) throws MessagingException {
         log.info("Registering user with email: {}", request.getEmail());
 
         // Check if user already exists
@@ -114,7 +118,9 @@ public  class AuthServiceImpl implements AuthService {
 
         log.info("User registered successfully with ID: {}", savedUser.getId());
 
-        //TODO: Send verification email to the user
+        //send email activation code to user
+        mailTokenService.sendEmailVerificationTo(newUser);
+
 
         return AuthResponse.builder()
                 .accessToken(null)

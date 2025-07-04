@@ -8,6 +8,7 @@ import com.shopco.Authentication.service.impl.AuthServiceImpl;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,7 @@ public class AuthController {
     )
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid  SignUpRequest request){
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid  SignUpRequest request) throws MessagingException {
         AuthResponse response = authService.registerUser(request);
         return new ResponseEntity<>(ResponseUtil.success(
                 HttpStatus.CREATED.value(), "registration successful", response,  null

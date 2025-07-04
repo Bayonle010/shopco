@@ -1,6 +1,6 @@
 package com.shopco.Authentication.token.service;
 
-import com.shopco.user.User;
+import com.shopco.user.entity.User;
 
 public interface TokenService {
     void saveRefreshToken(User user, String refreshToken);

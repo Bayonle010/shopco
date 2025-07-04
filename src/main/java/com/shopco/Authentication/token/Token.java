@@ -1,6 +1,6 @@
 package com.shopco.Authentication.token;
 
-import com.shopco.user.User;
+import com.shopco.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

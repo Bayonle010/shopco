@@ -1,35 +1,55 @@
 package com.shopco.mail;
 
-import com.shopco.user.User;
+import com.shopco.user.entity.Otp;
+import com.shopco.user.entity.User;
+import com.shopco.user.repositories.OtpRepository;
+import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 public class MailTokenService {
 
-    private final MailTokenRepository mailTokenRepository;
+    private final OtpRepository otpRepository;
+    private final EmailService emailService;
 
-    public MailTokenService(MailTokenRepository mailTokenRepository) {
-        this.mailTokenRepository = mailTokenRepository;
+   // private String activationUrl;
+
+    public MailTokenService(OtpRepository otpRepository, EmailService emailService) {
+        this.otpRepository = otpRepository;
+        this.emailService = emailService;
     }
 
-    public void sendEmailVerificationTo(User user){
+    public void sendEmailVerificationTo(User user) throws MessagingException {
         var newToken = generateAndSaveVerificationToken(user);
+        log.info("generating a new token {}",newToken);
+
         //send email
+        emailService.sendEmail(
+                user.getEmail(),
+                user.getFirstname(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+              //  activationUrl,
+                newToken,
+                "Account Activation"
+
+        );
     }
 
     private String generateAndSaveVerificationToken(User user){
         String generatedToken = generateActivationCode(5);
-        var token = MailToken.builder()
+        var token = Otp.builder()
                 .token(generatedToken)
                 .user(user)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .build();
 
-        mailTokenRepository.save(token);
+        otpRepository.save(token);
 
         return generatedToken;
     }
@@ -45,5 +65,8 @@ public class MailTokenService {
         }
         return codeBuilder.toString();
     }
+
+
+
 
 }

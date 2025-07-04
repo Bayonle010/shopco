@@ -1,4 +1,4 @@
-package com.shopco.user;
+package com.shopco.user.entity;
 
 import com.shopco.Authentication.token.Token;
 import com.shopco.role.Role;

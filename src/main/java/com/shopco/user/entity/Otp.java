@@ -1,12 +1,10 @@
-package com.shopco.mail;
+package com.shopco.user.entity;
 
-import com.shopco.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
-public class MailToken {
+public class Otp {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
