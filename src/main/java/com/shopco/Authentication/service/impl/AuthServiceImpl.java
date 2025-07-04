@@ -6,16 +6,18 @@ import com.shopco.Authentication.dto.SignInRequest;
 import com.shopco.Authentication.dto.SignUpRequest;
 import com.shopco.Authentication.service.AuthService;
 import com.shopco.Authentication.token.service.Impl.TokenServiceImpl;
+import com.shopco.core.exception.BadRequestException;
 import com.shopco.core.exception.EmailAlreadyExistsException;
 import com.shopco.core.exception.InvalidCredentialException;
 import com.shopco.core.exception.UsernameAlreadyExistsException;
 import com.shopco.core.security.JwtUtil;
-import com.shopco.mail.MailTokenService;
 import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
+import com.shopco.user.dto.request.GenerateOtpRequest;
 import com.shopco.user.entity.User;
 import com.shopco.user.model.UserDto;
 import com.shopco.user.repositories.UserRepository;
+import com.shopco.verification.service.impl.VerificationServiceImpl;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -43,20 +45,20 @@ public  class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final TokenServiceImpl tokenService;
-    private final MailTokenService mailTokenService;
+    private final VerificationServiceImpl verificationService;
 
 
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenServiceImpl tokenService, MailTokenService mailTokenService) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenServiceImpl tokenService, VerificationServiceImpl verificationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
-        this.mailTokenService = mailTokenService;
+        this.verificationService = verificationService;
     }
 
     @Transactional
@@ -99,7 +101,7 @@ public  class AuthServiceImpl implements AuthService {
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)
-                .isEnabled(false)
+                .isEnabled(true)
                 .build();
 
         //Initialize roles if null
@@ -119,7 +121,11 @@ public  class AuthServiceImpl implements AuthService {
         log.info("User registered successfully with ID: {}", savedUser.getId());
 
         //send email activation code to user
-        mailTokenService.sendEmailVerificationTo(newUser);
+        verificationService.handleGenerateOtp(
+                GenerateOtpRequest.builder()
+                        .email(newUser.getEmail())
+                        .build()
+        );
 
 
         return AuthResponse.builder()
@@ -141,6 +147,10 @@ public  class AuthServiceImpl implements AuthService {
         if(user.isEmpty()){
             log.info("User not found with email: {}", formatedEmailFromRequest);
             throw new UsernameNotFoundException("invalid email or password");
+        }
+
+        if(!user.get().isVerified()){
+            throw new BadRequestException("email is not verified");
         }
 
         log.info("attempting to authenticate with email {}" , signInRequest.getEmail());

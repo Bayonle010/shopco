@@ -46,7 +46,7 @@ public class AuthController {
             - One special character (e.g., @#$%^&+=!).
         - Must not contain any whitespace.
 
-        On successful registration, the user can log in through the `/login` endpoint to receive authentication tokens.
+        On successful registration, A verification code will be send to the user's mail. If not found, use the verification api to generate a new one.
     """
     )
     @PostMapping("/register")

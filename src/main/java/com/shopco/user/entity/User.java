@@ -50,9 +50,12 @@ public class User  implements UserDetails {
 
     private boolean isAccountNonLocked;
 
-    public boolean isCredentialsNonExpired;
+    private boolean isCredentialsNonExpired;
 
-    public boolean isEnabled;
+    private boolean isEnabled;
+
+
+    private boolean isVerified;
 
     //Biometric authentication(Face ID)
     private String faceIdToken;
