@@ -1,6 +1,6 @@
 package com.shopco.role;
 
-import com.shopco.user.User;
+import com.shopco.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

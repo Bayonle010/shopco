@@ -8,6 +8,7 @@ import com.shopco.Authentication.service.impl.AuthServiceImpl;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -45,12 +46,12 @@ public class AuthController {
             - One special character (e.g., @#$%^&+=!).
         - Must not contain any whitespace.
 
-        On successful registration, the user can log in through the `/login` endpoint to receive authentication tokens.
+        On successful registration, A verification code will be send to the user's mail. If not found, use the verification api to generate a new one.
     """
     )
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid  SignUpRequest request){
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid  SignUpRequest request) throws MessagingException {
         AuthResponse response = authService.registerUser(request);
         return new ResponseEntity<>(ResponseUtil.success(
                 HttpStatus.CREATED.value(), "registration successful", response,  null

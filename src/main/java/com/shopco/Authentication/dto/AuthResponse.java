@@ -1,6 +1,6 @@
 package com.shopco.Authentication.dto;
 
-import com.shopco.user.UserDto;
+import com.shopco.user.model.UserDto;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package com.shopco.core.security;
 
-import com.shopco.user.UserRepository;
+import com.shopco.user.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

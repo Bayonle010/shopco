@@ -1,6 +1,7 @@
-package com.shopco.user;
+package com.shopco.user.model;
 
 import com.shopco.role.Role;
+import com.shopco.user.entity.User;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,30 +1,24 @@
-package com.shopco.Authentication.token;
+package com.shopco.verification.entity;
 
 import com.shopco.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
-@Setter
-@Getter
-@Table(name = "tokens")
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @Entity
-public class Token {
+public class Otp {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String token; // hashed refresh token
-
-    @Enumerated(EnumType.STRING)
-    private TokenType tokenType;
-
-    private boolean revoked;
 
     private boolean expired;
 
@@ -32,9 +26,8 @@ public class Token {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    private Instant expiresAt;
-
+    private LocalDateTime expiresAt;
 
 }

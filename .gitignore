@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+#ENVIROMENT VARIABLES
+.env
+.env.test
+.env.docker
+.env.local
+kms-data/
+
+# Ignore all log files, including rotated ones
+logger.log*
+*.log
+*.gz
+
