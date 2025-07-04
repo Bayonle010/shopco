@@ -4,6 +4,7 @@ import com.shopco.Authentication.token.Token;
 import com.shopco.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,8 +55,8 @@ public class User  implements UserDetails {
 
     private boolean isEnabled;
 
-
-    private boolean isVerified;
+    @Column(name = "is_verified",  nullable = false)
+   private boolean isVerified = false;
 
     //Biometric authentication(Face ID)
     private String faceIdToken;
@@ -97,6 +98,7 @@ public class User  implements UserDetails {
     public boolean isAccountNonLocked() {
         return true;
     }
+
 
     @Override
     public boolean isCredentialsNonExpired() {
