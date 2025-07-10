@@ -1,23 +1,29 @@
 package com.shopco.product.controller;
 
 import com.shopco.core.response.ApiResponse;
-import com.shopco.product.entity.ProductVariant;
+import com.shopco.product.dto.request.ProductRequest;
+import com.shopco.product.service.impl.ProductServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
 
-@RestControllerAdvice
+@Tag(name = "")
+@RestController
 @RequestMapping("/api/admin/products")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminProductController {
 
-    @PostMapping("")
-    public ResponseEntity<ApiResponse> createProduct(@RequestBody ProductRequest productRequest) {
+    private final ProductServiceImpl productService;
 
+    public AdminProductController(ProductServiceImpl productService) {
+        this.productService = productService;
+    }
 
+    @PostMapping()
+    public ResponseEntity<ApiResponse> createProduct(@Valid  @RequestBody  ProductRequest productRequest) {
+        return productService.createProduct(productRequest);
     }
 
 }

@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.shopco.core.exception.NetworkConnectivityException;
 import com.shopco.file.service.CloudinaryService;
+import com.shopco.file.util.FileValidationUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     @Override
     public String uploadFile(MultipartFile file, String folderName) {
         try {
+
+            FileValidationUtil.validateImageFile(file);
+
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
                     "folder", folderName,
                     "resource_type", "image"
