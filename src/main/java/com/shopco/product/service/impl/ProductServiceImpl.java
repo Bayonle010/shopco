@@ -5,6 +5,7 @@ import com.shopco.core.response.ResponseUtil;
 import com.shopco.enums.Category;
 import com.shopco.enums.Size;
 import com.shopco.product.dto.request.ProductRequest;
+import com.shopco.product.dto.response.ProductResponse;
 import com.shopco.product.entity.Product;
 import com.shopco.product.entity.ProductVariant;
 import com.shopco.product.repository.ProductRespository;
@@ -38,8 +39,8 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());
         product.setCategory(Category.fromString(productRequest.getCategory()));
-        product.setPrice(productRequest.getPrice());
         product.setImageUrl(productRequest.getImageUrl());
+        product.setDiscount(productRequest.getDiscountInPercentage());
         product.setCreatedAt(LocalDateTime.now());
 
         List<ProductVariant> variants = productRequest.getVariants()
@@ -57,7 +58,18 @@ public class ProductServiceImpl implements ProductService {
         product.setProductVariants(variants);
         productRepository.save(product);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.success(0, "product uploaded successfully", product.getId(), null));
+        ProductResponse response = ProductResponse.builder()
+                .id(product.getId())
+//                .name(product.getName())
+//                .category(product.getCategory().toString())
+//                .price(product.getPrice())
+//                .imageUrl(product.getImageUrl())
+//                .description(product.getDescription())
+//                .discountInPercentage(product.getDiscount())
+//                .variants(product.getProductVariants())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.success(0, "product uploaded successfully", response, null));
 
 
     }

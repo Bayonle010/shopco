@@ -5,7 +5,7 @@ import com.shopco.core.exception.IllegalArgumentException;
 import java.util.Arrays;
 
 public enum Category {
-    FORMAL, GYM, PARTY, CASUAL;
+    FORMAL, GYM, PARTY, CASUAL, SPORTS;
 
     public static Category fromString(String value) {
         if (value == null) return null;
