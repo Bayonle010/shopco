@@ -73,4 +73,18 @@ public class ProductServiceImpl implements ProductService {
 
 
     }
+
+    /**
+     * @param pageSize 
+     * @param page
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(long pageSize, long page) {
+
+        List<Product> products = productRepository.findAll();
+
+
+        return null;
+    }
 }

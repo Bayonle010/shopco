@@ -43,4 +43,9 @@ public class AdminProductController {
         return productService.createProduct(productRequest);
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(){
+        return productService.
+    }
+
 }
