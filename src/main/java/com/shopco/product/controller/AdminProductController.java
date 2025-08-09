@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "")
+@Tag(name = "Products (Admin) ")
 @RestController
 @RequestMapping("/api/admin/products")
 @PreAuthorize("hasRole('ADMIN')")
@@ -34,7 +34,7 @@ public class AdminProductController {
         - category: Must be one of the predefined enum values:
             → GYM, CASUAL, FORMAL, SPORTS
         - variants: List of color variants (with stock per size)
-        - size: → GYM, CASUAL, FORMAL, SPORTS   \s
+        - size: → S,M,L,XL,XXL  \s
         ❗ If you send an unknown enum (e.g., invalid category or size), the request will fail with a 400 Bad Request.
        \s"""
     )

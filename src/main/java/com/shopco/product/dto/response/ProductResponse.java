@@ -24,7 +24,7 @@ public class ProductResponse {
 
     private BigDecimal price;
 
-    private double discountInPercentage;
+    private Double discountInPercentage;
 
     private String imageUrl;
 

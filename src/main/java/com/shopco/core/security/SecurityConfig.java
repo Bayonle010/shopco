@@ -62,8 +62,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll() // public endpoint
-                        //.anyRequest().authenticated()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
+                       // .anyRequest().permitAll()
                 )
 
 
