@@ -1,6 +1,7 @@
 package com.shopco.user.entity;
 
 import com.shopco.Authentication.token.Token;
+import com.shopco.review.Review;
 import com.shopco.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -72,6 +73,7 @@ public class User  implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

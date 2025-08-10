@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll() // public endpoint
                         .anyRequest().authenticated()
+                       // .anyRequest().permitAll()
                 )
 
 

@@ -4,15 +4,20 @@ package com.shopco.core.exception;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+import java.util.List;
 
 
 @Slf4j
@@ -174,6 +179,74 @@ public class GlobalExceptionHandler {
         return new  ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
 
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException e){
+        log.error("Enum Conversion error {} ", e.getMessage());
+        ApiResponse errorResponse = ResponseUtil.error(
+                HttpStatus.BAD_REQUEST.value(), e.getMessage(), "Enum Conversion Error", null
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+//    @GetMapping("/name")
+//    public ResponseEntity<List<GiftcardResponse>> searchBy(@RequestParam String cardName) {
+//        return ResponseEntity.ok(giftcardService.searchGiftCardByName(cardName));
+//    }
+//
+//    public List<GiftcardResponse> searchGiftCardByName(String cardName) {
+//        return giftcardRepository.findByCardNameContainingIgnoreCase(cardName).stream().map(this::toGiftCardResponseDto).toList();
+//    }
+
+
+//    @Override
+//    public PageResponse<GiftcardResponse> getAllGiftcardsForAdmin(int page, int size, String sortBy, String sortDir){
+//        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+//        Pageable pageable = PageRequest.of(page, size, sort);
+//
+//        Page<Giftcard> giftcardPage = giftcardRepository.findAll(pageable);
+//
+//        List<GiftcardResponse> content = giftcardPage.getContent().stream()
+//                .map(this::toGiftCardResponseDto)
+//                .toList();
+//
+//        return new PageResponse<>(
+//                content,
+//                giftcardPage.getNumber(),
+//                giftcardPage.getTotalPages(),
+//                giftcardPage.getTotalElements(),
+//                giftcardPage.getSize(),
+//                giftcardPage.hasNext(),
+//                giftcardPage.hasPrevious()
+//        );
+//    }
+//
+//    @Override
+//    public PageResponse<GiftcardResponse> getAllVisibleGiftcardsForUsers(int page, int size, String sortBy, String sortDir) {
+//        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+//        Pageable pageable = PageRequest.of(page, size, sort);
+//
+//        Page<Giftcard> giftcardPage = giftcardRepository.findByVisibleToUsersTrue(pageable);
+//
+//        List<GiftcardResponse> content = giftcardPage.getContent().stream()
+//                .map(this::toGiftCardResponseDto)
+//                .toList();
+//
+//        return new PageResponse<>(
+//                content,
+//                giftcardPage.getNumber(),
+//                giftcardPage.getTotalPages(),
+//                giftcardPage.getTotalElements(),
+//                giftcardPage.getSize(),
+//                giftcardPage.hasNext(),
+//                giftcardPage.hasPrevious()
+//        );
+//    }
+
+
+
+
 
 
 
