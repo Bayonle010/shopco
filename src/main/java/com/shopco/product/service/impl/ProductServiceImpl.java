@@ -94,8 +94,10 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = PaginationUtility.createPageRequest(page, pageSize);
 
+        // page ONLY products
         Page<Product> productPage = productRepository.findAll(pageable);
 
+       //fetch variants for these products in one go
         List<UUID> ids = productPage.getContent().stream().map(Product::getId).toList();
 
         List<Product> hydrated = ids.isEmpty() ? List.of() : productRepository.findByIdIn(ids);
