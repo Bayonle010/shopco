@@ -8,6 +8,7 @@ import com.shopco.Authentication.service.impl.AuthServiceImpl;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Auth")
 public class AuthController {
     private final AuthServiceImpl authService;
 
