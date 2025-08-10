@@ -9,5 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductService {
     ResponseEntity<ApiResponse>createProduct(@RequestBody ProductRequest productRequest);
-    ResponseEntity<ApiResponse> handleFetchProductsForAdmin(long pageSize, long page);
+    ResponseEntity<ApiResponse> handleFetchProductsForAdmin(int page, int pageSize);
 }

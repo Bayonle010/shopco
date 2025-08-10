@@ -44,8 +44,9 @@ public class AdminProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(){
-        return productService.
+    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize){
+        return productService.handleFetchProductsForAdmin(page, pageSize);
     }
 
 }

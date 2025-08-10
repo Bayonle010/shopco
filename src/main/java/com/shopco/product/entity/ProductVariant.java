@@ -24,6 +24,7 @@ public class ProductVariant {
 
     private String color;
 
+    @Enumerated(EnumType.STRING)
     private Size size;
 
     private int stock;
