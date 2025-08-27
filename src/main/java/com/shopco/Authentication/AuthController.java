@@ -54,10 +54,7 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse> registerUser(@RequestBody @Valid  SignUpRequest request) throws MessagingException {
-        AuthResponse response = authService.registerUser(request);
-        return new ResponseEntity<>(ResponseUtil.success(
-                HttpStatus.CREATED.value(), "registration successful", response,  null
-        ), HttpStatus.CREATED);
+        return authService.registerUser(request);
     }
 
 
@@ -75,10 +72,7 @@ public class AuthController {
     )
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> authenticateUser(@RequestBody @Valid SignInRequest signInRequest){
-        AuthResponse response = authService.authenticateUser(signInRequest);
-        return new ResponseEntity<>(ResponseUtil.success(
-                HttpStatus.OK.value(), "user authenticated successfully", response, null
-        ), HttpStatus.OK);
+        return authService.authenticateUser(signInRequest);
     }
 
 
@@ -99,11 +93,7 @@ public class AuthController {
     )
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest request){
-        AuthResponse refreshToken = authService.refreshToken(request);
-
-        return new ResponseEntity<>(ResponseUtil.success(
-                HttpStatus.OK.value(), "new access token generated successfully", refreshToken, null
-        ), HttpStatus.OK);
+        return authService.refreshToken(request);
     }
 
 
@@ -124,12 +114,7 @@ public class AuthController {
     )
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(HttpServletRequest request){
-
-        authService.logout(request);
-
-        return new ResponseEntity<>(ResponseUtil.success(
-                HttpStatus.OK.value(), "user logged out successfully", null, null
-        ), HttpStatus.OK);
+        return authService.logout(request);
     }
 
 }

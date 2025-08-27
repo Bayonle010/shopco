@@ -6,14 +6,13 @@ import com.shopco.Authentication.dto.SignInRequest;
 import com.shopco.Authentication.dto.SignUpRequest;
 import com.shopco.Authentication.service.AuthService;
 import com.shopco.Authentication.token.service.Impl.TokenServiceImpl;
-import com.shopco.core.exception.BadRequestException;
-import com.shopco.core.exception.EmailAlreadyExistsException;
-import com.shopco.core.exception.InvalidCredentialException;
-import com.shopco.core.exception.UsernameAlreadyExistsException;
+import com.shopco.core.exception.*;
+import com.shopco.core.response.ApiResponse;
+import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.security.JwtUtil;
 import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
-import com.shopco.user.dto.request.GenerateOtpRequest;
+import com.shopco.verification.dto.request.GenerateOtpRequest;
 import com.shopco.user.entity.User;
 import com.shopco.user.model.UserDto;
 import com.shopco.user.repositories.UserRepository;
@@ -24,14 +23,16 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -63,31 +64,25 @@ public  class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public AuthResponse registerUser(SignUpRequest request) throws MessagingException {
-        log.info("Registering user with email: {}", request.getEmail());
+    public ResponseEntity<ApiResponse> registerUser(SignUpRequest request) throws MessagingException {
 
         // Check if user already exists
-
         String formatedEmailFromRequest = request.getEmail().toLowerCase();
         Optional<User> existingUserByEmail = userRepository.findByEmail(formatedEmailFromRequest);
         if (existingUserByEmail.isPresent()) {
-            log.error("User registration failed: email already exists {}", formatedEmailFromRequest);
-            throw new EmailAlreadyExistsException("Email already exists: " + formatedEmailFromRequest);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(99, "email already exist", "", ""));
         }
 
 
         String formatedUsernameFromRequest = request.getUsername().toUpperCase();
         Optional<User> existingUserByUsername = userRepository.findByUsername(formatedUsernameFromRequest);
         if (existingUserByUsername.isPresent()) {
-            log.error("User registration failed: username already exists {}", formatedUsernameFromRequest);
-            throw new UsernameAlreadyExistsException("Username already exists: " + formatedUsernameFromRequest);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(99, "username already exist", "", ""));
         }
 
 
         // Encode password
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-        log.info("User details: {}", request);
 
         // Create new user
         User newUser = User.builder()
@@ -113,47 +108,34 @@ public  class AuthServiceImpl implements AuthService {
         userRole.ifPresent(role -> newUser.getRoles().add(role));
 
         // Save user to database
-        log.info("Saving new user: {}", newUser);
         User savedUser = userRepository.save(newUser);
 
         UserDto userDto = UserDto.convertUserEntityToUserDto(savedUser);
 
-        log.info("User registered successfully with ID: {}", savedUser.getId());
 
         //send email activation code to user
-        verificationService.handleGenerateOtp(
-                GenerateOtpRequest.builder()
-                        .email(newUser.getEmail())
-                        .build()
+        return  verificationService.handleGenerateOtp(
+                GenerateOtpRequest.builder().email(newUser.getEmail()).build()
         );
-
-
-        return AuthResponse.builder()
-                .accessToken(null)
-                .refreshToken(null)
-                .userDto(userDto)
-                .build();
 
     }
 
 
 
     @Override
-    public AuthResponse authenticateUser(SignInRequest signInRequest){
+    public ResponseEntity<ApiResponse> authenticateUser(SignInRequest signInRequest){
         String formatedEmailFromRequest = signInRequest.getEmail().toLowerCase();
 
-        Optional<User> user = userRepository.findByEmail(formatedEmailFromRequest);
+        User user = userRepository.findByEmail(formatedEmailFromRequest).orElseThrow(()-> new ResourceNotFoundException("user not found"));
 
-        if(user.isEmpty()){
+        if(ObjectUtils.isEmpty(user)){
             log.info("User not found with email: {}", formatedEmailFromRequest);
-            throw new UsernameNotFoundException("invalid email or password");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(99, "user not found", "", null));
         }
 
-        if(!user.get().isVerified()){
-            throw new BadRequestException("email is not verified");
+        if(!user.isVerified()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseUtil.error(99, "email verification is required", null, null));
         }
-
-        log.info("attempting to authenticate with email {}" , signInRequest.getEmail());
 
         try {
 
@@ -168,16 +150,18 @@ public  class AuthServiceImpl implements AuthService {
 
             String refreshToken = jwtUtil.generateRefreshToken(authentication, formatedEmailFromRequest);
 
-            tokenService.saveRefreshToken(user.get(), refreshToken);
+            tokenService.saveRefreshToken(user, refreshToken);
 
-            UserDto userInfo = UserDto.convertUserEntityToUserDto(user.get());
+            UserDto userInfo = UserDto.convertUserEntityToUserDto(user);
 
 
-            return AuthResponse.builder()
+            AuthResponse response = AuthResponse.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .userDto(userInfo)
                     .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "login successful", response, null));
 
         }catch (AuthenticationException e){
             log.error("Invalid email or Password {}", e.getMessage());
@@ -188,7 +172,7 @@ public  class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse refreshToken(RefreshTokenRequest request) {
+    public ResponseEntity<ApiResponse>  refreshToken(RefreshTokenRequest request) {
 
         String refreshToken = request.getRefreshToken();
 
@@ -197,19 +181,15 @@ public  class AuthServiceImpl implements AuthService {
 
         String email = decodedJwt.getSubject();
 
-        log.info("email decoded from jwt {}", email);
-
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("resource not found"));
 
 
-        if (userOptional.isEmpty()){
-            throw new InvalidCredentialException("user with the token not found");
+        if (ObjectUtils.isEmpty(user)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.error(99, "user not found", "", ""));
         }
 
 
-        User user = userOptional.get();
 
-        log.info("user with email {} + owns the jwt", userOptional.get());
 
         boolean isValidToken = tokenService.isRefreshTokenValid(refreshToken, user);
 
@@ -222,15 +202,17 @@ public  class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtil.generateAccessToken(authentication, user.getEmail());
 
-        return AuthResponse.builder()
+        AuthResponse response =  AuthResponse.builder()
                 .accessToken(accessToken)
                 .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "access token retrieved", response, null));
     }
 
 
 
     @Override
-    public void logout(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -248,6 +230,8 @@ public  class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(email).orElseThrow(()-> new InvalidCredentialException("invalid token : user with the passed token not found"));
 
         tokenService.revokeAllUserTokens(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "success", "", null));
 
     }
 

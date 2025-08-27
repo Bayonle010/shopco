@@ -2,7 +2,8 @@ package com.shopco.product.controller;
 
 import com.shopco.core.response.ApiResponse;
 import com.shopco.product.dto.request.ProductRequest;
-import com.shopco.product.service.impl.ProductServiceImpl;
+import com.shopco.product.service.ProductService;
+import com.shopco.product.service.ProductServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminProductController {
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
 
     public AdminProductController(ProductServiceImpl productService) {
         this.productService = productService;

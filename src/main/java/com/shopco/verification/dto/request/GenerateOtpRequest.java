@@ -1,4 +1,4 @@
-package com.shopco.user.dto.request;
+package com.shopco.verification.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VerifyOtpRequest {
+public class GenerateOtpRequest {
 
-    @JsonProperty("otp")
-    @NotBlank(message = "otp value cannot be empty")
-    private String otp;
+    @JsonProperty("email")
+    @NotBlank(message = "email cannot be blank")
+    private String email;
 }

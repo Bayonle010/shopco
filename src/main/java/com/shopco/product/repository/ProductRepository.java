@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ProductRespository extends JpaRepository<Product, UUID> {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Override
     Page<Product> findAll(Pageable pageable);
 
