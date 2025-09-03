@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @RequiredArgsConstructor
 @Configuration
@@ -58,6 +59,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors-> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll() // public endpoint
                         .anyRequest().authenticated()
@@ -120,6 +122,11 @@ public class SecurityConfig {
         jwtConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtConverter;
     }
+
+    private CorsConfigurationSource corsConfigurationSource(){
+        return new CorsConfig().corsConfigurationSource();
+    }
+
 
 
 
