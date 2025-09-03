@@ -1,41 +1,41 @@
-package com.shopco.product.service.impl;
+package com.shopco.product.service;
 
+import com.shopco.core.exception.ResourceNotFoundException;
 import com.shopco.core.response.ApiResponse;
-import com.shopco.core.response.PageResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.utils.PaginationUtility;
+import com.shopco.core.utils.StringUtil;
 import com.shopco.enums.Category;
 import com.shopco.enums.Size;
+import com.shopco.product.builder.PublicProductResponseBuilder;
 import com.shopco.product.dto.request.ProductRequest;
+import com.shopco.product.dto.request.PublicProductListParams;
 import com.shopco.product.dto.response.ProductResponse;
 import com.shopco.product.dto.response.ProductVariantResponse;
+import com.shopco.product.dto.response.PublicProductResponse;
 import com.shopco.product.entity.Product;
 import com.shopco.product.entity.ProductVariant;
-import com.shopco.product.repository.ProductRespository;
-import com.shopco.product.repository.ProductVariantRepository;
-import com.shopco.product.service.ProductService;
+import com.shopco.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service("ProductService")
 public class ProductServiceImpl implements ProductService {
-    private final ProductRespository productRepository;
+    private final ProductRepository productRepository;
 
-    public ProductServiceImpl(ProductRespository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
@@ -70,18 +70,8 @@ public class ProductServiceImpl implements ProductService {
 
         ProductResponse response = ProductResponse.builder()
                 .id(product.getId())
-//                .name(product.getName())
-//                .category(product.getCategory().toString())
-//                .price(product.getPrice())
-//                .imageUrl(product.getImageUrl())
-//                .description(product.getDescription())
-//                .discountInPercentage(product.getDiscount())
-//                .variants(product.getProductVariants())
                 .build();
-
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.success(0, "product uploaded successfully", response, null));
-
-
     }
 
     /**
@@ -130,39 +120,62 @@ public class ProductServiceImpl implements ProductService {
                             .build();
                 })
                 .toList();
-
-
-
-
-
-
-        //List<UUID> ids = productPage.getContent()
-
-
-//        Page<ProductResponse> productResponsePage = productRepository.findAll(pageable).map(p ->
-//                ProductResponse.builder()
-//                        .id(p.getId())
-//                        .name(p.getName())
-//                        .description(p.getDescription())
-//                        .price(p.getPrice())
-//                        .discountInPercentage(p.getDiscount())
-//                        .imageUrl(p.getImageUrl())
-//                        .category(p.getCategory() != null ? p.getCategory().name() : null) // enum -> String
-//                        .variants(
-//                                p.getProductVariants().stream()
-//                                        .map(v -> new ProductVariantResponse(
-//                                                v.getColor(),
-//                                                v.getSize() != null ? v.getSize().name() : null, // enum -> String
-//                                                v.getStock()
-//                                        ))
-//                                        .toList()
-//                        )
-//                        .build()
-//        );
-//
-
-
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0,  "Products fetched successfully", content, "" ));
+    }
+
+    /**
+     * @param params 
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchProductForUsers(PublicProductListParams params) {
+
+        Category category = Category.fromString(params.getCategory());
+        Size size = Size.fromString(params.getSize());
+        String q   = (params.getSearch() == null || params.getSearch().isBlank()) ? null : "%" + params.getSearch().trim().toLowerCase() + "%";
+        Pageable pageable = PaginationUtility.createPageRequest(params.getPage(), params.getPageSize(), mapSort(params.getSort()));
+        Set<String> colors = StringUtil.parseLowerCsv(params.getColors());
+
+        Page<Product> paginatedProduct = productRepository.findPublicPage(
+                category, q, params.getMinPrice(), params.getMaxPrice(), size, colors, pageable
+        );
+
+        List<PublicProductResponse> response = paginatedProduct.getContent().stream().map(PublicProductResponseBuilder::toProduct).toList();
+
+        Map<String, Object> meta  = PaginationUtility.buildPaginationMetadata(paginatedProduct);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "product fetched", response, meta));
+    }
+
+    /**
+     * @return 
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchProductVariantsByProductId(UUID productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(()-> new ResourceNotFoundException("product not found"));
+
+        List<ProductVariant> variants = product.getProductVariants();
+
+        List<ProductVariantResponse> response = variants.stream()
+                        .map(v -> ProductVariantResponse.builder()
+                                .color(v.getColor() != null ? v.getColor().toLowerCase() : null)
+                                .size(v.getSize() != null ? v.getSize().name() : null)
+                                .stock(v.getStock())
+                                .build()).toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "variants fetched successfully", response, null));
+    }
+
+    private Sort mapSort(String s) {
+        String k = (s == null ? "new" : s.trim().toLowerCase());
+        return switch (k) {
+            case "top" -> Sort.by(Sort.Order.desc("createdAt"));
+            case "price_asc" -> Sort.by(Sort.Order.asc("price"), Sort.Order.desc("createdAt"));
+            case "price_desc" -> Sort.by(Sort.Order.desc("price"), Sort.Order.desc("createdAt"));
+//            case "rating" -> Sort.by(Sort.Order.desc("rating"), Sort.Order.desc("createdAt"));
+            default -> PaginationUtility.DEFAULT_SORT;// "new"
+        };
 
     }
 }

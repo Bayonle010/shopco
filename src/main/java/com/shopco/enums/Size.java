@@ -8,7 +8,7 @@ public enum Size {
     S,M,L,XL,XXL;
 
     public static Size fromString(String value) {
-        if (value == null) return null;
+        if (value == null || value.equalsIgnoreCase("all")) return null;
 
         for (Size size : Size.values()) {
             if (size.name().equalsIgnoreCase(value.trim())) {

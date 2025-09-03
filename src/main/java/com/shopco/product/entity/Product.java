@@ -39,8 +39,6 @@ public class Product {
 
     private String imageUrl;
 
-    private boolean isNewArrival = false; // thinking of querying new arrival by date
-
     private int totalSold = 0;
 
     @CreationTimestamp

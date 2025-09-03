@@ -9,6 +9,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,6 +27,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @RequiredArgsConstructor
 @Configuration
@@ -38,35 +40,43 @@ public class SecurityConfig {
 
     private static final String[] WHITE_LIST_URL = {
             "/swagger-ui/**",
-            "/api/v1/auth/register",
-            "/api/v1/auth/login",
-            "/api/v1/auth/refresh",
-            "/api/v1/otp/**",
+            "/api/v1/auth/**",
             "/login/**",
             "/oauth2/**",
-            "/v2/api-docs",
-            "/v3/api-docs",
-            "v3/api-docs/**",
-            "/swagger-resources/**",
+            "/v2/api-docs/**",
+            "/v3/api-docs/**",
             "/swagger-resources/**",
             "/configuration/ui",
-            "/configuration/security",
-            "webjars/**",
-            "/swagger-ui.html",
-            "/ws/**"};
+            "/configuration/security/**",
+            "/webjars/**",
+            "/swagger-ui.html/**",
+            "/api/v1/public/**",
+            "/ws/**"
+    };
 
-
+    // 1) Public chain: matches only PUBLIC paths; no oauth2ResourceServer() here,
+    //    so the Bearer token is never read/parsed on these requests.
     @Bean
+    @Order(1)
+    SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(WHITE_LIST_URL)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        // NOTE: no oauth2ResourceServer() here
+        return http.build();
+    }
+
+    // 2) Protected chain: everything else. JWT will be parsed here.
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth-> auth
-                        .requestMatchers(WHITE_LIST_URL).permitAll() // public endpoint
-                        .anyRequest().authenticated()
-                       // .anyRequest().permitAll()
-                )
-
-
+                .cors(cors-> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth-> auth.anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -123,6 +133,9 @@ public class SecurityConfig {
         return jwtConverter;
     }
 
+    private CorsConfigurationSource corsConfigurationSource(){
+        return new CorsConfig().corsConfigurationSource();
+    }
 
 
 }

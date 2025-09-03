@@ -17,6 +17,7 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String role;
+    private boolean isVerified;
     private String userType;
 
 
@@ -33,6 +34,7 @@ public class UserDto {
                 .email(user.getEmail())
                 .firstName(user.getFirstname())
                 .lastName(user.getLastname())
+                .isVerified(user.isVerified())
                 .role(String.valueOf(roles))
                 .build();
 

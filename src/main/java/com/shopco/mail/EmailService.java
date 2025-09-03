@@ -30,7 +30,6 @@ public class EmailService {
             String to,
             String userName,
             EmailTemplateName emailTemplate,
-            //String confirmationUrl,
             String activationCode,
             String subject
 
@@ -67,7 +66,6 @@ public class EmailService {
         helper.setText(template, true);
 
         mailSender.send(mimeMessage);
-
     }
 
 }

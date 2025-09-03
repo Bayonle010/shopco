@@ -3,12 +3,18 @@ package com.shopco.product.dto.request;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProductRequest {
     @NotBlank(message = "product name cannot be empty")
     private String name;
@@ -21,7 +27,7 @@ public class ProductRequest {
     private BigDecimal price;
 
     @NotNull(message = "discount cannot be blank, input 0.00 if need be to be blank")
-    private double discountInPercentage;
+    private Double discountInPercentage;
 
     @NotBlank(message = "product image url")
     private String imageUrl;

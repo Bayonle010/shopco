@@ -1,16 +1,18 @@
 package com.shopco.core.utils;
 
 import java.security.SecureRandom;
+import java.util.Random;
 
 public class NumberUtil {
-    public static String generateActivationCode(int length) {
-        String characters = "0123456789";
-        StringBuilder codeBuilder = new StringBuilder();
-        SecureRandom secureRandom = new SecureRandom();
-        for (int i = 0; i < length; i++) {
-            int randomIndex = secureRandom.nextInt(characters.length()); //0 to 9
-            codeBuilder.append(characters.charAt(randomIndex));
+    public static String generateNumericOtp() {
+        Random random = new Random();
+        int otpLength = 6;
+        StringBuilder otpBuilder = new StringBuilder();
+
+        for (int i = 0; i < otpLength; i++) {
+            int digit = random.nextInt(10);
+            otpBuilder.append(digit);
         }
-        return codeBuilder.toString();
+        return otpBuilder.toString();
     }
 }

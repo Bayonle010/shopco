@@ -1,4 +1,4 @@
-package com.shopco.user.dto.response;
+package com.shopco.verification.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
