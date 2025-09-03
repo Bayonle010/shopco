@@ -9,6 +9,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -53,19 +54,29 @@ public class SecurityConfig {
             "/ws/**"
     };
 
-
+    // 1) Public chain: matches only PUBLIC paths; no oauth2ResourceServer() here,
+    //    so the Bearer token is never read/parsed on these requests.
     @Bean
+    @Order(1)
+    SecurityFilterChain publicChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(WHITE_LIST_URL)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        // NOTE: no oauth2ResourceServer() here
+        return http.build();
+    }
+
+    // 2) Protected chain: everything else. JWT will be parsed here.
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors-> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth-> auth
-                        .requestMatchers(WHITE_LIST_URL).permitAll() // public endpoint
-                        .anyRequest().authenticated()
-                       // .anyRequest().permitAll()
-                )
-
-
+                .authorizeHttpRequests(auth-> auth.anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
