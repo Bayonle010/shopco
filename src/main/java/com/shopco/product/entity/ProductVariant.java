@@ -29,8 +29,4 @@ public class ProductVariant {
 
     private int stock;
 
-
-
-
-
 }

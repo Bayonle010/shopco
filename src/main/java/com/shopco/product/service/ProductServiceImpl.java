@@ -1,5 +1,6 @@
 package com.shopco.product.service;
 
+import com.shopco.core.exception.ResourceNotFoundException;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.utils.PaginationUtility;
@@ -144,6 +145,26 @@ public class ProductServiceImpl implements ProductService {
         Map<String, Object> meta  = PaginationUtility.buildPaginationMetadata(paginatedProduct);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "product fetched", response, meta));
+    }
+
+    /**
+     * @return 
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchProductVariantsByProductId(UUID productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(()-> new ResourceNotFoundException("product not found"));
+
+        List<ProductVariant> variants = product.getProductVariants();
+
+        List<ProductVariantResponse> response = variants.stream()
+                        .map(v -> ProductVariantResponse.builder()
+                                .color(v.getColor() != null ? v.getColor().toLowerCase() : null)
+                                .size(v.getSize() != null ? v.getSize().name() : null)
+                                .stock(v.getStock())
+                                .build()).toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "variants fetched successfully", response, null));
     }
 
     private Sort mapSort(String s) {
