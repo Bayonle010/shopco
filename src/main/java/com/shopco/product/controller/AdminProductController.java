@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Products (Admin) ")
 @RestController
-@RequestMapping("/api/admin/products")
+@RequestMapping("/api/v1/admin/products")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminProductController {
 
@@ -49,5 +49,7 @@ public class AdminProductController {
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize){
         return productService.handleFetchProductsForAdmin(page, pageSize);
     }
+
+
 
 }

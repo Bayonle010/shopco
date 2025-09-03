@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "verification", description = "Verification Api")
 @RestController
-@RequestMapping("/api/v1/otp")
+@RequestMapping("/api/v1/auth/otp")
 public class VerificationController {
     private final VerificationServiceImpl verificationService;
 

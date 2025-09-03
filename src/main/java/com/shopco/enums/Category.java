@@ -8,7 +8,7 @@ public enum Category {
     FORMAL, GYM, PARTY, CASUAL, SPORTS;
 
     public static Category fromString(String value) {
-        if (value == null) return null;
+        if (value == null || value.equalsIgnoreCase("all")) return null;
 
         for (Category category : Category.values()) {
             if (category.name().equalsIgnoreCase(value.trim())) {

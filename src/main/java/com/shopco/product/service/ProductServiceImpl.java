@@ -3,17 +3,22 @@ package com.shopco.product.service;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.utils.PaginationUtility;
+import com.shopco.core.utils.StringUtil;
 import com.shopco.enums.Category;
 import com.shopco.enums.Size;
+import com.shopco.product.builder.PublicProductResponseBuilder;
 import com.shopco.product.dto.request.ProductRequest;
+import com.shopco.product.dto.request.PublicProductListParams;
 import com.shopco.product.dto.response.ProductResponse;
 import com.shopco.product.dto.response.ProductVariantResponse;
+import com.shopco.product.dto.response.PublicProductResponse;
 import com.shopco.product.entity.Product;
 import com.shopco.product.entity.ProductVariant;
 import com.shopco.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -114,5 +120,41 @@ public class ProductServiceImpl implements ProductService {
                 })
                 .toList();
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0,  "Products fetched successfully", content, "" ));
+    }
+
+    /**
+     * @param params 
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchProductForUsers(PublicProductListParams params) {
+
+        Category category = Category.fromString(params.getCategory());
+        Size size = Size.fromString(params.getSize());
+        String q   = (params.getSearch() == null || params.getSearch().isBlank()) ? null : "%" + params.getSearch().trim().toLowerCase() + "%";
+        Pageable pageable = PaginationUtility.createPageRequest(params.getPage(), params.getPageSize(), mapSort(params.getSort()));
+        Set<String> colors = StringUtil.parseLowerCsv(params.getColors());
+
+        Page<Product> paginatedProduct = productRepository.findPublicPage(
+                category, q, params.getMinPrice(), params.getMaxPrice(), size, colors, pageable
+        );
+
+        List<PublicProductResponse> response = paginatedProduct.getContent().stream().map(PublicProductResponseBuilder::toProduct).toList();
+
+        Map<String, Object> meta  = PaginationUtility.buildPaginationMetadata(paginatedProduct);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "product fetched", response, meta));
+    }
+
+    private Sort mapSort(String s) {
+        String k = (s == null ? "new" : s.trim().toLowerCase());
+        return switch (k) {
+            case "top" -> Sort.by(Sort.Order.desc("createdAt"));
+            case "price_asc" -> Sort.by(Sort.Order.asc("price"), Sort.Order.desc("createdAt"));
+            case "price_desc" -> Sort.by(Sort.Order.desc("price"), Sort.Order.desc("createdAt"));
+//            case "rating" -> Sort.by(Sort.Order.desc("rating"), Sort.Order.desc("createdAt"));
+            default -> PaginationUtility.DEFAULT_SORT;// "new"
+        };
+
     }
 }
