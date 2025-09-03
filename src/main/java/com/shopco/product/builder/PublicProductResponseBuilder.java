@@ -25,7 +25,6 @@ public class PublicProductResponseBuilder {
                 .price(product.getPrice())
                 .discountInPercentage(product.getDiscount())
                 .priceAfterDiscount(after)
-                .isAvailable(isAvailable)
                 .build();
 
     }
