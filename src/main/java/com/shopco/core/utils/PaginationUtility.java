@@ -16,6 +16,7 @@ public class PaginationUtility {
     public static final Sort DEFAULT_SORT = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
 
     private static final int MAX_PAGE_SIZE = 35;
+    private static final int MAX_PAGE = 1000;
 
     /** Normalize page size (1..MAX_PAGE_SIZE) */
     public static int resolvePageSize(int requestedSize) {
@@ -23,10 +24,18 @@ public class PaginationUtility {
         return Math.min(requestedSize, MAX_PAGE_SIZE);
     }
 
+    public static int resolvePage(int requestedPage) {
+        if (requestedPage <= 0) return MAX_PAGE;
+        return Math.min(requestedPage, MAX_PAGE);
+    }
+
+
+
 
     public static Pageable createPageRequest(int page, int pageSize, Sort sort){
         int size = resolvePageSize((int) pageSize);
-        int zeroBased = Math.max(0, page-1 );
+        int pageNum = resolvePage((int) page);
+        int zeroBased = Math.max(0, pageNum-1 );
         return PageRequest.of(zeroBased, pageSize, sort);
     }
 

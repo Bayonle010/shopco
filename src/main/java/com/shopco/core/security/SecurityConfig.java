@@ -44,15 +44,14 @@ public class SecurityConfig {
             "/oauth2/**",
             "/v2/api-docs/**",
             "/v3/api-docs/**",
-            "v3/api-docs/**",
-            "/swagger-resources/**",
             "/swagger-resources/**",
             "/configuration/ui",
             "/configuration/security/**",
-            "webjars/**",
+            "/webjars/**",
             "/swagger-ui.html/**",
-            "api/v1/public/**",
-            "/ws/**"};
+            "/api/v1/public/**",
+            "/ws/**"
+    };
 
 
     @Bean
@@ -126,8 +125,6 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource(){
         return new CorsConfig().corsConfigurationSource();
     }
-
-
 
 
 }
