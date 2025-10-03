@@ -1,44 +1,41 @@
 package com.shopco.cart;
 
-import com.shopco.product.entity.Product;
-import com.shopco.product.entity.ProductVariant;
 import com.shopco.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Getter
+@Setter
+@Table(name = "carts")
 @Entity
-@Table(name = "cart_items")
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class CartItem {
+public class Cart {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_variant_id")
-    private ProductVariant productVariant;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CartItem> items = new ArrayList<>();
 }
