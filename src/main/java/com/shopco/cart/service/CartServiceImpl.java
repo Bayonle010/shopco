@@ -1,6 +1,6 @@
 package com.shopco.cart.service;
 
-import com.shopco.cart.dto.CartRequest;
+import com.shopco.cart.dto.request.CartRequest;
 import com.shopco.cart.entity.Cart;
 import com.shopco.cart.entity.CartItem;
 import com.shopco.cart.repository.CartItemRepository;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;

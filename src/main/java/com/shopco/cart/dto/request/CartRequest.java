@@ -1,6 +1,5 @@
-package com.shopco.cart.dto;
+package com.shopco.cart.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NonNull;

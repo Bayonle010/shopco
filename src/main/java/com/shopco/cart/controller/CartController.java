@@ -1,7 +1,8 @@
 package com.shopco.cart.controller;
 
-import com.shopco.cart.dto.CartRequest;
+import com.shopco.cart.dto.request.CartRequest;
 import com.shopco.cart.service.CartService;
+import com.shopco.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping("")
-    public ResponseEntity<?> addItemsToCart(@Valid @RequestBody CartRequest request, Authentication authentication){
+    public ResponseEntity<ApiResponse> addItemsToCart(@Valid @RequestBody CartRequest request, Authentication authentication){
         return cartService.handleAddItemToCart(request, authentication);
     }
 
