@@ -1,6 +1,6 @@
 package com.shopco.order;
 
-import com.shopco.enums.Status;
+import com.shopco.product.enums.Status;
 import com.shopco.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

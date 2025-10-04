@@ -1,4 +1,4 @@
-package com.shopco.cart;
+package com.shopco.cart.entity;
 
 import com.shopco.user.entity.User;
 import jakarta.persistence.*;
@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

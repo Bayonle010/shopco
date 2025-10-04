@@ -1,6 +1,6 @@
 package com.shopco.product.entity;
 
-import com.shopco.enums.Size;
+import com.shopco.product.enums.Size;
 import jakarta.persistence.*;
 import lombok.*;
 

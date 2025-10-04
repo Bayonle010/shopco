@@ -1,8 +1,7 @@
-package com.shopco.cart;
+package com.shopco.cart.entity;
 
 import com.shopco.product.entity.Product;
 import com.shopco.product.entity.ProductVariant;
-import com.shopco.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
