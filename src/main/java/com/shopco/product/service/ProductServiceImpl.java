@@ -111,6 +111,7 @@ public class ProductServiceImpl implements ProductService {
                                     (full.getProductVariants() == null ? List.<ProductVariant>of() : full.getProductVariants())
                                             .stream()
                                             .map(v -> new ProductVariantResponse(
+                                                    v.getId(),
                                                     v.getColor(),
                                                     v.getSize() != null ? v.getSize().name() : null,
                                                     v.getStock()
@@ -159,6 +160,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductVariantResponse> response = variants.stream()
                         .map(v -> ProductVariantResponse.builder()
+                                .id(v.getId())
                                 .color(v.getColor() != null ? v.getColor().toLowerCase() : null)
                                 .size(v.getSize() != null ? v.getSize().name() : null)
                                 .stock(v.getStock())
