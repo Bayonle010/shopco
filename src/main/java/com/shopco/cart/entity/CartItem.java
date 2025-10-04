@@ -40,6 +40,12 @@ public class CartItem {
     @Column(name = "unit_price_snapshot")
     private BigDecimal unitPriceSnapshot;
 
+    @Column(name = "list_price_snapshot")
+    private BigDecimal listPriceSnapshot;
+
+    @Column(name = "discount_percent_snapshot")
+    private BigDecimal discountPercentSnapshot; // e.g., 10 for 10%
+
 
     @CreationTimestamp
     private LocalDateTime createdAt;
