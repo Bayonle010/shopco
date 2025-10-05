@@ -1,6 +1,8 @@
 package com.shopco.cart.service;
 
+import com.shopco.cart.builder.CartResponseBuilder;
 import com.shopco.cart.dto.request.CartRequest;
+import com.shopco.cart.dto.response.CartResponse;
 import com.shopco.cart.entity.Cart;
 import com.shopco.cart.entity.CartItem;
 import com.shopco.cart.repository.CartItemRepository;
@@ -96,5 +98,21 @@ public class CartServiceImpl implements CartService{
 
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart added sucessfully", "", null));
+    }
+
+    /**
+     * @param authentication 
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchCartForUser(Authentication authentication) {
+        String authenticatedUserEmail = authentication.getName();
+        User user = userRepository.findByEmail(authenticatedUserEmail).orElseThrow(()-> new BadCredentialsException("invalid user"));
+
+        Cart cart = cartRepository.findByUser_Id(user.getId()).orElseThrow(()-> new ResourceNotFoundException("no cart found for user"));
+
+        CartResponse response = CartResponseBuilder.buildCartResponse(cart);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart details successfully fetched", response, null));
     }
 }

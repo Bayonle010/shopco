@@ -5,13 +5,14 @@ import com.shopco.cart.dto.response.CartResponse;
 import com.shopco.cart.dto.response.CartSummaryResponse;
 import com.shopco.cart.entity.Cart;
 import com.shopco.cart.entity.CartItem;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
+@NoArgsConstructor
 public class CartResponseBuilder {
-    private static CartResponse buildCartResponse(Cart cart){
+    public static CartResponse buildCartResponse(Cart cart){
         List<CartItemResponse> items = cart.getItems().stream()
                 .map(CartResponseBuilder::toItemDTO)
                 .toList();
