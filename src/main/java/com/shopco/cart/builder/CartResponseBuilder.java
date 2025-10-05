@@ -16,6 +16,9 @@ public class CartResponseBuilder {
                 .map(CartResponseBuilder::toItemDTO)
                 .toList();
 
+        BigDecimal itemDiscountTotal = items.stream().map(CartItemResponse::getItemDiscount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal subtotal = items.stream()
                 .map(CartItemResponse::getLineTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -39,7 +42,10 @@ public class CartResponseBuilder {
 
     private static CartItemResponse toItemDTO(CartItem line) {
         int qty = line.getQuantity() == null ? 1 : line.getQuantity();
-        BigDecimal unit = line.getUnitPriceSnapshot() == null ? BigDecimal.ZERO : line.getUnitPriceSnapshot();
+        BigDecimal list = nvl(line.getListPriceSnapshot(), line.getUnitPriceSnapshot());
+        BigDecimal unit = nvl(line.getUnitPriceSnapshot(), BigDecimal.ZERO);
+        BigDecimal perUnitDisc =maxZero(list.subtract(unit));
+        BigDecimal itemDiscount = perUnitDisc.multiply(BigDecimal.valueOf(qty));
         BigDecimal lineTotal = unit.multiply(BigDecimal.valueOf(qty));
 
         return CartItemResponse.builder()
@@ -48,9 +54,15 @@ public class CartResponseBuilder {
                 .productVariantId(line.getProductVariant() != null ? line.getProductVariant().getId() : null)
                 .title(line.getProduct().getName())
                 .quantity(qty)
+                .listPrice(unit)
+                .discountPercent(line.getDiscountPercentSnapshot())
+                .itemDiscount(itemDiscount)
                 .unitPrice(unit)
                 .lineTotal(lineTotal)
                 .currency("NGN")
                 .build();
     }
+
+    private static BigDecimal nvl(BigDecimal a, BigDecimal b) { return a != null ? a : b; }
+    private static BigDecimal maxZero(BigDecimal v) { return v.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : v; }
 }

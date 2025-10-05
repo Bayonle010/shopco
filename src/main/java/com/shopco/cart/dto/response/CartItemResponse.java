@@ -20,7 +20,10 @@ public class CartItemResponse {
     private String imageUrl;      // snapshot or product image
     private String attributesJson; // e.g. {"color":"Blue","size":"M"}
     private int quantity;
+    private BigDecimal listPrice; //100
     private BigDecimal unitPrice; // snapshot
+    private BigDecimal discountPercent;
+    private BigDecimal itemDiscount;
     private BigDecimal lineTotal; // unitPrice * quantity
     private String currency;
 }

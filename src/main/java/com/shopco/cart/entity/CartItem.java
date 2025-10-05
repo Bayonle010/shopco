@@ -46,6 +46,8 @@ public class CartItem {
     @Column(name = "discount_percent_snapshot")
     private BigDecimal discountPercentSnapshot; // e.g., 10 for 10%
 
+    private String currency = "NGN";
+
 
     @CreationTimestamp
     private LocalDateTime createdAt;

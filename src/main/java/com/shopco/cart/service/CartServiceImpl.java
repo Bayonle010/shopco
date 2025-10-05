@@ -73,6 +73,7 @@ public class CartServiceImpl implements CartService{
 
 
         BigDecimal unitPriceSnapshot = product.getPrice();
+        BigDecimal percentDiscount = product.getPrice();
 
         Optional<CartItem> existing = cartItemRepository.findByCart_IdAndProduct_IdAndProductVariant_Id(cart.getId(), product.getId(), productVariant.getId());
         CartItem line;
