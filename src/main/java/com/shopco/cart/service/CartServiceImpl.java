@@ -2,6 +2,7 @@ package com.shopco.cart.service;
 
 import com.shopco.cart.builder.CartResponseBuilder;
 import com.shopco.cart.dto.request.CartRequest;
+import com.shopco.cart.dto.request.UpdateCartItemRequest;
 import com.shopco.cart.dto.response.CartResponse;
 import com.shopco.cart.entity.Cart;
 import com.shopco.cart.entity.CartItem;
@@ -75,7 +76,6 @@ public class CartServiceImpl implements CartService{
 
 
         BigDecimal unitPriceSnapshot = product.getPrice();
-        BigDecimal percentDiscount = product.getPrice();
 
         Optional<CartItem> existing = cartItemRepository.findByCart_IdAndProduct_IdAndProductVariant_Id(cart.getId(), product.getId(), productVariant.getId());
         CartItem line;
@@ -97,7 +97,7 @@ public class CartServiceImpl implements CartService{
         cartItemRepository.save(line);
 
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart added sucessfully", "", null));
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart added successfully", "", null));
     }
 
     /**
@@ -115,4 +115,52 @@ public class CartServiceImpl implements CartService{
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart details successfully fetched", response, null));
     }
+
+    /**
+     * @param request 
+     * @param authentication
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleUpdateQuantityForCartItem(UpdateCartItemRequest request, Authentication authentication) {
+        if (request.getQuantity() <= 0){
+            throw new IllegalArgumentException("quantity be greater than zero");
+        }
+
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(()-> new BadCredentialsException("invalid user"));
+
+        Cart cart = cartRepository.findByUser_Id(user.getId()).orElseThrow(() -> new ResourceNotFoundException("cart does not exist for user"));
+
+        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(()-> new ResourceNotFoundException("cart item not found"));
+
+        if (!Objects.equals(user.getId(), cart.getUser().getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    ResponseUtil.error(99, "Access denied to update cart", "cart item does not belong user", ""));
+        }
+
+        if(!Objects.equals(cartItem.getCart().getId(), cartItem.getId())){
+            throw new IllegalArgumentException("cart item does not belong to user's cart");
+        }
+
+        // validate stock rules
+        ProductVariant productVariant = cartItem.getProductVariant();
+        if (productVariant.getStock() < request.getQuantity()){
+            throw new IllegalArgumentException("Insufficient sock for selected variants");
+        }
+
+        //update quantity
+        cartItem.setQuantity(request.getQuantity());
+
+        var product = cartItem.getProduct();
+        BigDecimal unit = product.getPrice();
+
+
+
+
+
+
+        return null;
+    }
+
 }

@@ -17,16 +17,19 @@ public class CartResponseBuilder {
                 .map(CartResponseBuilder::toItemDTO)
                 .toList();
 
+
+        // sum of per-item discounts
         BigDecimal itemDiscountTotal = items.stream().map(CartItemResponse::getItemDiscount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // sub-total after item-level discounts (sum of line total)
         BigDecimal subtotal = items.stream()
                 .map(CartItemResponse::getLineTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         CartSummaryResponse summary = CartSummaryResponse.builder()
                 .subtotal(subtotal)
-                .discountTotal(BigDecimal.ZERO) // fill when you add coupons
+                .discountTotal(itemDiscountTotal)
                 .shipping(BigDecimal.ZERO)      // fill when you add shipping
                 .tax(BigDecimal.ZERO)           // fill when you add tax
                 .total(subtotal)
@@ -55,7 +58,7 @@ public class CartResponseBuilder {
                 .productVariantId(line.getProductVariant() != null ? line.getProductVariant().getId() : null)
                 .title(line.getProduct().getName())
                 .quantity(qty)
-                .listPrice(unit)
+                .listPrice(list)
                 .discountPercent(line.getDiscountPercentSnapshot())
                 .itemDiscount(itemDiscount)
                 .unitPrice(unit)
