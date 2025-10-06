@@ -114,6 +114,10 @@ public class CartServiceImpl implements CartService{
 
         Cart cart = cartRepository.findByUser_Id(user.getId()).orElseThrow(()-> new ResourceNotFoundException("no cart found for user"));
 
+        for (CartItem cartItem : cart.getItems()){
+            snapShotFromProduct(cartItem);
+        }
+
         CartResponse response = CartResponseBuilder.buildCartResponse(cart);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart details successfully fetched", response, null));
