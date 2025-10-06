@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service("CartService")
@@ -73,11 +74,6 @@ public class CartServiceImpl implements CartService{
         Cart cart = resolveOrCreateCart(user);
 
         Optional<CartItem> existing = cartItemRepository.findByCart_IdAndProduct_IdAndProductVariant_Id(cart.getId(), product.getId(), productVariant.getId());
-
-
-
-
-        //BigDecimal unitPriceSnapshot = product.getPrice();
 
 
         CartItem line;
@@ -124,13 +120,14 @@ public class CartServiceImpl implements CartService{
     }
 
     /**
+     * @Param cartItemId
      * @param request 
      * @param authentication
      * @return
      */
     @Override
-    public ResponseEntity<ApiResponse> handleUpdateQuantityForCartItem(UpdateCartItemRequest request, Authentication authentication) {
-        if (request.getQuantity() <= 0){
+    public ResponseEntity<ApiResponse> handleUpdateQuantityForCartItem(UUID cartItemId, UpdateCartItemRequest request, Authentication authentication) {
+        if (request.quantity() <= 0){
             throw new IllegalArgumentException("quantity be greater than zero");
         }
 
@@ -139,42 +136,30 @@ public class CartServiceImpl implements CartService{
 
         Cart cart = cartRepository.findByUser_Id(user.getId()).orElseThrow(() -> new ResourceNotFoundException("cart does not exist for user"));
 
-        CartItem cartItem = cartItemRepository.findById(request.getCartItemId()).orElseThrow(()-> new ResourceNotFoundException("cart item not found"));
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(()-> new ResourceNotFoundException("cart item not found"));
 
         if (!Objects.equals(user.getId(), cart.getUser().getId())){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     ResponseUtil.error(99, "Access denied to update cart", "cart item does not belong user", ""));
         }
 
-        if(!Objects.equals(cartItem.getCart().getId(), cartItem.getId())){
-            throw new IllegalArgumentException("cart item does not belong to user's cart");
-        }
-
         // validate stock rules
         ProductVariant productVariant = cartItem.getProductVariant();
-        if (productVariant.getStock() < request.getQuantity()){
+        if (productVariant.getStock() < request.quantity()){
             throw new IllegalArgumentException("Insufficient sock for selected variants");
         }
 
         //update quantity
-        cartItem.setQuantity(request.getQuantity());
+        cartItem.setQuantity(request.quantity());
+        snapShotFromProduct(cartItem);
         cartItemRepository.save(cartItem);
 
-        Product product = cartItem.getProduct();
-        BigDecimal list = product.getPrice();
-        BigDecimal percentageDiscount = BigDecimal.valueOf(product.getDiscount());
-        BigDecimal unit = list.subtract(list.multiply(percentageDiscount).divide(BigDecimal.valueOf(100),4, RoundingMode.HALF_UP));
 
-        product.set
+        CartResponse response = CartResponseBuilder.buildCartResponse(cart);
 
-
-
-
-
-
-
-        return null;
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart item updated", response, null));
     }
+
 
 
     private BigDecimal effectiveFrom(BigDecimal listingPrice, double discountPercent){

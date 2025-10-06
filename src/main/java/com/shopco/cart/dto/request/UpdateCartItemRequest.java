@@ -6,12 +6,8 @@ import lombok.NonNull;
 
 import java.util.UUID;
 
-@Data
-public class UpdateCartItemRequest {
-    @NonNull
-    private UUID cartItemId;
-
-    @Positive
-    @NonNull
-    private Integer quantity;
-}
+public record UpdateCartItemRequest (
+        @Positive
+        @NonNull
+        Integer quantity
+){}

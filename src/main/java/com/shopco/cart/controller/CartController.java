@@ -1,6 +1,7 @@
 package com.shopco.cart.controller;
 
 import com.shopco.cart.dto.request.CartRequest;
+import com.shopco.cart.dto.request.UpdateCartItemRequest;
 import com.shopco.cart.service.CartService;
 import com.shopco.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Tag(name = "Carts")
@@ -30,5 +33,12 @@ public class CartController {
     public ResponseEntity<ApiResponse> fetchCartForUsers(Authentication authentication){
         return cartService.handleFetchCartForUser(authentication);
     }
+
+    @Operation(summary = "update quantity for a cart item")
+    @GetMapping("/items/{cartItemId}")
+    public ResponseEntity<ApiResponse> updateQuantityForCartItem(@PathVariable UUID cartItemId, UpdateCartItemRequest request, Authentication authentication){
+        return cartService.handleUpdateQuantityForCartItem(cartItemId, request, authentication);
+    }
+
 
 }
