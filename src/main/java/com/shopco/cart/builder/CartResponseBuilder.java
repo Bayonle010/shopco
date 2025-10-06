@@ -45,7 +45,8 @@ public class CartResponseBuilder {
     }
 
     private static CartItemResponse toItemDTO(CartItem line) {
-        int qty = line.getQuantity() == null ? 1 : line.getQuantity();
+        int qty = line.getQuantity();
+
         BigDecimal list = nvl(line.getListPriceSnapshot(), line.getUnitPriceSnapshot());
         BigDecimal unit = nvl(line.getUnitPriceSnapshot(), BigDecimal.ZERO);
         BigDecimal perUnitDisc =maxZero(list.subtract(unit));

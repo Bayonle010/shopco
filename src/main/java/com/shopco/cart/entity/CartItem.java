@@ -38,10 +38,10 @@ public class CartItem {
     private Integer quantity;
 
     @Column(name = "unit_price_snapshot")
-    private BigDecimal unitPriceSnapshot;
+    private BigDecimal unitPriceSnapshot; // effective price at add/last reprice
 
     @Column(name = "list_price_snapshot")
-    private BigDecimal listPriceSnapshot;
+    private BigDecimal listPriceSnapshot; // product list price at snapshot time
 
     @Column(name = "discount_percent_snapshot")
     private BigDecimal discountPercentSnapshot; // e.g., 10 for 10%

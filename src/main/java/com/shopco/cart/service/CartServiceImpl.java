@@ -29,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -82,13 +83,13 @@ public class CartServiceImpl implements CartService{
         if (existing.isPresent()){
             line = existing.get();
             line.setQuantity(line.getQuantity() + request.getQuantity());
-            line.setUnitPriceSnapshot(unitPriceSnapshot);
+            //line.setUnitPriceSnapshot(unitPriceSnapshot);
         }else {
             line = CartItem.builder()
                     .cart(cart)
                     .product(product)
                     .productVariant(productVariant)
-                    .unitPriceSnapshot(unitPriceSnapshot)
+                   // .unitPriceSnapshot(unitPriceSnapshot)
                     .quantity(request.getQuantity())
                     .build();
 
@@ -151,9 +152,15 @@ public class CartServiceImpl implements CartService{
 
         //update quantity
         cartItem.setQuantity(request.getQuantity());
+        cartItemRepository.save(cartItem);
 
-        var product = cartItem.getProduct();
-        BigDecimal unit = product.getPrice();
+        Product product = cartItem.getProduct();
+        BigDecimal list = product.getPrice();
+        BigDecimal percentageDiscount = BigDecimal.valueOf(product.getDiscount());
+        BigDecimal unit = list.subtract(list.multiply(percentageDiscount).divide(BigDecimal.valueOf(100),4, RoundingMode.HALF_UP));
+
+        product.set
+
 
 
 
@@ -161,6 +168,34 @@ public class CartServiceImpl implements CartService{
 
 
         return null;
+    }
+
+
+    private BigDecimal effectiveFrom(BigDecimal listingPrice, double discountPercent){
+        if (listingPrice == null) return BigDecimal.ZERO;
+        BigDecimal pct = BigDecimal.valueOf(discountPercent);
+        if (pct.compareTo(BigDecimal.ZERO) <= 0) return listingPrice;
+
+        return listingPrice.subtract(listingPrice.multiply(pct).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+    }
+
+    private void snapShotFromProduct(CartItem cartItem){
+        var product = cartItem.getProduct();
+        var p = cartItem.getProduct();
+
+        BigDecimal list = p.getPrice() ;
+        BigDecimal unit = effectiveFrom(list, p.getDiscount());
+        BigDecimal pct  = BigDecimal.valueOf(p.getDiscount());
+
+        cartItem.setListPriceSnapshot(list);
+        cartItem.setUnitPriceSnapshot(unit);
+        cartItem.setDiscountPercentSnapshot(pct);
+        if (cartItem.getCurrency() == null) cartItem.setCurrency("NGN");
+    }
+
+    private Cart resolveOrCreateCart(User user){
+        return cartRepository.findByUser_Id(user.getId())
+                .orElseGet(() -> cartRepository.save(Cart.builder().user(user).build()));
     }
 
 }
