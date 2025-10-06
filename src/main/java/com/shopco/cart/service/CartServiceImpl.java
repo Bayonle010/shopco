@@ -70,20 +70,22 @@ public class CartServiceImpl implements CartService{
             throw new IllegalArgumentException("Insufficient stock for the selected variant");
         }
 
-        Cart cart = cartRepository.findByUser_Id(user.getId()).orElseGet(()-> {
-            Cart c = Cart.builder().user(user).build();
-             return cartRepository.save(c);
-        });
-
-
-        BigDecimal unitPriceSnapshot = product.getPrice();
+        Cart cart = resolveOrCreateCart(user);
 
         Optional<CartItem> existing = cartItemRepository.findByCart_IdAndProduct_IdAndProductVariant_Id(cart.getId(), product.getId(), productVariant.getId());
+
+
+
+
+        //BigDecimal unitPriceSnapshot = product.getPrice();
+
+
         CartItem line;
         if (existing.isPresent()){
             line = existing.get();
             line.setQuantity(line.getQuantity() + request.getQuantity());
-            //line.setUnitPriceSnapshot(unitPriceSnapshot);
+            // refresh snapshots to current catalog policy
+            snapShotFromProduct(line);
         }else {
             line = CartItem.builder()
                     .cart(cart)
@@ -92,7 +94,7 @@ public class CartServiceImpl implements CartService{
                    // .unitPriceSnapshot(unitPriceSnapshot)
                     .quantity(request.getQuantity())
                     .build();
-
+            snapShotFromProduct(line);
             cart.getItems().add(line);
         }
         cartItemRepository.save(line);
