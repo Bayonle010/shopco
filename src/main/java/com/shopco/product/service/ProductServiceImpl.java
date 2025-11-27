@@ -5,8 +5,8 @@ import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.utils.PaginationUtility;
 import com.shopco.core.utils.StringUtil;
-import com.shopco.enums.Category;
-import com.shopco.enums.Size;
+import com.shopco.product.enums.Category;
+import com.shopco.product.enums.Size;
 import com.shopco.product.builder.PublicProductResponseBuilder;
 import com.shopco.product.dto.request.ProductRequest;
 import com.shopco.product.dto.request.PublicProductListParams;
@@ -111,6 +111,7 @@ public class ProductServiceImpl implements ProductService {
                                     (full.getProductVariants() == null ? List.<ProductVariant>of() : full.getProductVariants())
                                             .stream()
                                             .map(v -> new ProductVariantResponse(
+                                                    v.getId(),
                                                     v.getColor(),
                                                     v.getSize() != null ? v.getSize().name() : null,
                                                     v.getStock()
@@ -159,6 +160,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductVariantResponse> response = variants.stream()
                         .map(v -> ProductVariantResponse.builder()
+                                .id(v.getId())
                                 .color(v.getColor() != null ? v.getColor().toLowerCase() : null)
                                 .size(v.getSize() != null ? v.getSize().name() : null)
                                 .stock(v.getStock())

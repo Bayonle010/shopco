@@ -1,4 +1,4 @@
-package com.shopco.enums;
+package com.shopco.product.enums;
 
 import com.shopco.core.exception.IllegalArgumentException;
 

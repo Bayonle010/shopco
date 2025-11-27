@@ -1,21 +1,21 @@
-package com.shopco.product.dto.response;
+package com.shopco.cart.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Builder
-@AllArgsConstructor
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductVariantResponse {
-    private UUID id;
-    private String color;
-    private String size;
-    private int stock;
+public class CartResponse {
+    private UUID cartId;
+    private UUID userId;
+    private String currency;
+    private List<CartItemResponse> items;
+    private CartSummaryResponse summary;
 }

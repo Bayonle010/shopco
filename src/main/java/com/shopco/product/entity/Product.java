@@ -1,6 +1,6 @@
 package com.shopco.product.entity;
 
-import com.shopco.enums.Category;
+import com.shopco.product.enums.Category;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

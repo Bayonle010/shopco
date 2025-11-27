@@ -1,7 +1,7 @@
 package com.shopco.product.repository;
 
-import com.shopco.enums.Category;
-import com.shopco.enums.Size;
+import com.shopco.product.enums.Category;
+import com.shopco.product.enums.Size;
 import com.shopco.product.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
