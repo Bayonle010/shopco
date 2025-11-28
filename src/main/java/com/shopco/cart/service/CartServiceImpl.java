@@ -160,6 +160,38 @@ public class CartServiceImpl implements CartService{
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart item updated", response, null));
     }
 
+    @Override
+    public ResponseEntity<ApiResponse> handleRemoveCartItem(UUID cartItemId, Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new BadCredentialsException("invalid user"));
+
+        Cart cart = cartRepository.findByUser_Id(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("cart does not exist for user"));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("cart item not found"));
+
+        if (!Objects.equals(cartItem.getCart().getId(), cart.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    ResponseUtil.error(
+                            99,
+                            "Access denied to remove cart item",
+                            "cart item does not belong to user's cart",
+                            ""
+                    )
+            );
+        }
+
+        cart.getItems().remove(cartItem);
+
+        cartItemRepository.delete(cartItem);
+
+        CartResponse response = CartResponseBuilder.buildCartResponse(cart);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseUtil.success(0, "cart item removed successfully", response, null));
+
+    }
 
 
     private BigDecimal effectiveFrom(BigDecimal listingPrice, double discountPercent){

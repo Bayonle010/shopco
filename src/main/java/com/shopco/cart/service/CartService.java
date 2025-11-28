@@ -13,4 +13,5 @@ public interface CartService {
     ResponseEntity<ApiResponse> handleAddItemToCart(CartRequest request, Authentication authentication);
     ResponseEntity<ApiResponse> handleFetchCartForUser(Authentication authentication);
     ResponseEntity<ApiResponse> handleUpdateQuantityForCartItem(UUID cartItemId, UpdateCartItemRequest request, Authentication authentication);
+    ResponseEntity<ApiResponse> handleRemoveCartItem(UUID cartItemId, Authentication authentication);
 }

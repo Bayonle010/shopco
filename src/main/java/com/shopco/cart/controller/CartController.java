@@ -35,9 +35,15 @@ public class CartController {
     }
 
     @Operation(summary = "update quantity for a cart item")
-    @GetMapping("/items/{cartItemId}")
+    @PostMapping("/items/{cartItemId}")
     public ResponseEntity<ApiResponse> updateQuantityForCartItem(@PathVariable UUID cartItemId, UpdateCartItemRequest request, Authentication authentication){
         return cartService.handleUpdateQuantityForCartItem(cartItemId, request, authentication);
+    }
+
+    @Operation(summary = "remove item from cart")
+    @DeleteMapping("/items/{cartItemId}")
+    public ResponseEntity<ApiResponse> removeItemFromCart(@PathVariable UUID cartItemId, Authentication authentication){
+        return cartService.handleRemoveCartItem(cartItemId, authentication);
     }
 
 
