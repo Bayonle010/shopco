@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Products (Admin) ")
 @RestController
 @RequestMapping("/api/v1/admin/products")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminProductController {
 
     private final ProductService productService;
@@ -28,7 +27,7 @@ public class AdminProductController {
             description = """
         Creates a new product with color variants and stock per size.
 
-        ✅ Required fields:
+        Required fields:
         - name: Product name
         - description: Product description
         - price: Product price
@@ -39,11 +38,14 @@ public class AdminProductController {
         ❗ If you send an unknown enum (e.g., invalid category or size), the request will fail with a 400 Bad Request.
        \s"""
     )
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping()
     public ResponseEntity<ApiResponse> createProduct(@Valid  @RequestBody  ProductRequest productRequest) {
         return productService.createProduct(productRequest);
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize){

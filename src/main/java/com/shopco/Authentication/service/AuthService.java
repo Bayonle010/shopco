@@ -1,9 +1,6 @@
 package com.shopco.Authentication.service;
 
-import com.shopco.Authentication.dto.AuthResponse;
-import com.shopco.Authentication.dto.RefreshTokenRequest;
-import com.shopco.Authentication.dto.SignInRequest;
-import com.shopco.Authentication.dto.SignUpRequest;
+import com.shopco.Authentication.dto.*;
 import com.shopco.core.response.ApiResponse;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,4 +15,6 @@ public interface AuthService {
     ResponseEntity<ApiResponse> refreshToken(RefreshTokenRequest refreshTokenRequest);
 
     ResponseEntity<ApiResponse> logout(HttpServletRequest httpServletRequest);
+
+    ResponseEntity<ApiResponse>  handleAddAdmin(AdminRegistrationRequest request);
 }

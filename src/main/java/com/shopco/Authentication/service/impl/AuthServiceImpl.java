@@ -1,9 +1,6 @@
 package com.shopco.Authentication.service.impl;
 
-import com.shopco.Authentication.dto.AuthResponse;
-import com.shopco.Authentication.dto.RefreshTokenRequest;
-import com.shopco.Authentication.dto.SignInRequest;
-import com.shopco.Authentication.dto.SignUpRequest;
+import com.shopco.Authentication.dto.*;
 import com.shopco.Authentication.service.AuthService;
 import com.shopco.Authentication.token.service.Impl.TokenServiceImpl;
 import com.shopco.core.exception.*;
@@ -12,6 +9,7 @@ import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.security.JwtUtil;
 import com.shopco.role.Role;
 import com.shopco.role.RoleRepository;
+import com.shopco.user.enums.UserType;
 import com.shopco.verification.dto.request.GenerateOtpRequest;
 import com.shopco.user.entity.User;
 import com.shopco.user.model.UserDto;
@@ -34,7 +32,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -233,6 +233,55 @@ public  class AuthServiceImpl implements AuthService {
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "success", "", null));
 
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> handleAddAdmin(AdminRegistrationRequest request) {
+        log.info("Adding u user with email: {}", request.email());
+
+        // Check if user already exists
+        boolean existingUserByEmail = userRepository.existsByEmail(request.email().toLowerCase());
+
+
+        if (existingUserByEmail) {
+            log.error("User registration failed: email already exists {}", request.email().toLowerCase());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseUtil.error(99, "Email  already exist", null, null));
+        }
+
+        String normalizedRole = request.baseRole().toUpperCase();
+
+        String authority = "ROLE_" + normalizedRole;
+        Role role = roleRepository.findByAuthority(authority).orElseThrow(()-> new ResourceNotFoundException("Role not found"));
+
+
+        // Encode password
+        String encodedPassword = passwordEncoder.encode(request.password());
+
+
+        // Create new user
+        User newUser = User.builder()
+                .firstname(request.firstName())
+                .lastname(request.lastName())
+                .email(request.email().toLowerCase())
+                .username("Shopco Admin")
+                .password(encodedPassword)
+                .userType(UserType.ADMIN)
+                .isAccountNonExpired(true)
+                .isAccountNonLocked(true)
+                .isCredentialsNonExpired(true)
+                .isEnabled(true)
+                .isVerified(true)
+                .roles(new HashSet<>(Collections.singleton(role)))
+                .build();
+
+
+        // Save user to database
+        log.info("Saving new user: {}", newUser);
+        User savedUser = userRepository.save(newUser);
+
+        log.info("Admin registered successfully with ID: {}", savedUser.getId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "Admin registered succesfully", savedUser.getId(), ""));
     }
 
 }
