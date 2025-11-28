@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -133,20 +134,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * @param params 
      * @return
      */
     @Override
-    public ResponseEntity<ApiResponse> handleFetchProductForUsers(PublicProductListParams params) {
+    public ResponseEntity<ApiResponse> handleFetchProductForUsers(
+            int page,
+            int pageSize,
+            Category category,
+            String search, String colors, Size size, String sort,
+            BigDecimal minPrice, BigDecimal maxPrice
+    ) {
 
-        Category category = Category.fromString(params.getCategory());
-        Size size = Size.fromString(params.getSize());
-        String q   = (params.getSearch() == null || params.getSearch().isBlank()) ? null : "%" + params.getSearch().trim().toLowerCase() + "%";
-        Pageable pageable = PaginationUtility.createPageRequest(params.getPage(), params.getPageSize(), mapSort(params.getSort()));
-        Set<String> colors = StringUtil.parseLowerCsv(params.getColors());
+        String q   = (search == null || search.isBlank()) ? null : "%" + search.trim().toLowerCase() + "%";
+        Pageable pageable = PaginationUtility.createPageRequest(page, pageSize, mapSort(sort));
+        Set<String> color = StringUtil.parseLowerCsv(colors);
 
         Page<Product> paginatedProduct = productRepository.findPublicPage(
-                category, q, params.getMinPrice(), params.getMaxPrice(), size, colors, pageable
+                category, q, minPrice, maxPrice, size, color, pageable
         );
 
         List<PublicProductResponse> response = paginatedProduct.getContent().stream().map(PublicProductResponseBuilder::toProduct).toList();
