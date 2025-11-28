@@ -190,69 +190,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-//    @GetMapping("/name")
-//    public ResponseEntity<List<GiftcardResponse>> searchBy(@RequestParam String cardName) {
-//        return ResponseEntity.ok(giftcardService.searchGiftCardByName(cardName));
-//    }
-//
-//    public List<GiftcardResponse> searchGiftCardByName(String cardName) {
-//        return giftcardRepository.findByCardNameContainingIgnoreCase(cardName).stream().map(this::toGiftCardResponseDto).toList();
-//    }
-
-
-//    @Override
-//    public PageResponse<GiftcardResponse> getAllGiftcardsForAdmin(int page, int size, String sortBy, String sortDir){
-//        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-//        Pageable pageable = PageRequest.of(page, size, sort);
-//
-//        Page<Giftcard> giftcardPage = giftcardRepository.findAll(pageable);
-//
-//        List<GiftcardResponse> content = giftcardPage.getContent().stream()
-//                .map(this::toGiftCardResponseDto)
-//                .toList();
-//
-//        return new PageResponse<>(
-//                content,
-//                giftcardPage.getNumber(),
-//                giftcardPage.getTotalPages(),
-//                giftcardPage.getTotalElements(),
-//                giftcardPage.getSize(),
-//                giftcardPage.hasNext(),
-//                giftcardPage.hasPrevious()
-//        );
-//    }
-//
-//    @Override
-//    public PageResponse<GiftcardResponse> getAllVisibleGiftcardsForUsers(int page, int size, String sortBy, String sortDir) {
-//        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-//        Pageable pageable = PageRequest.of(page, size, sort);
-//
-//        Page<Giftcard> giftcardPage = giftcardRepository.findByVisibleToUsersTrue(pageable);
-//
-//        List<GiftcardResponse> content = giftcardPage.getContent().stream()
-//                .map(this::toGiftCardResponseDto)
-//                .toList();
-//
-//        return new PageResponse<>(
-//                content,
-//                giftcardPage.getNumber(),
-//                giftcardPage.getTotalPages(),
-//                giftcardPage.getTotalElements(),
-//                giftcardPage.getSize(),
-//                giftcardPage.hasNext(),
-//                giftcardPage.hasPrevious()
-//        );
-//    }
-
-
-
-
-
-
-
-
-
-
-
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException e){
+        log.error("AccessDenied  {} ", e.getMessage());
+        ApiResponse errorResponse = ResponseUtil.error(
+                HttpStatus.FORBIDDEN.value(), "Access Denied", e.getMessage(), null
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
 
 }

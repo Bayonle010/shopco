@@ -16,12 +16,14 @@ import com.shopco.product.dto.response.PublicProductResponse;
 import com.shopco.product.entity.Product;
 import com.shopco.product.entity.ProductVariant;
 import com.shopco.product.repository.ProductRepository;
+import com.shopco.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,15 +36,18 @@ import java.util.stream.Collectors;
 @Service("ProductService")
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final UserService userService;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, UserService userService) {
         this.productRepository = productRepository;
+        this.userService = userService;
     }
 
 
     @Transactional
     @Override
-    public ResponseEntity<ApiResponse> createProduct(ProductRequest productRequest) {
+    public ResponseEntity<ApiResponse> createProduct(ProductRequest productRequest, Authentication authentication) {
+        userService.verifyAdmin(authentication);
 
         Product product = new Product();
         product.setName(productRequest.getName());
@@ -80,7 +85,8 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(int page, int pageSize) {
+    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(int page, int pageSize, Authentication authentication) {
+        userService.verifyAdmin(authentication);
 
         Pageable pageable = PaginationUtility.createPageRequest(page, pageSize);
 

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Products (Admin) ")
@@ -40,16 +41,16 @@ public class AdminProductController {
     )
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping()
-    public ResponseEntity<ApiResponse> createProduct(@Valid  @RequestBody  ProductRequest productRequest) {
-        return productService.createProduct(productRequest);
+    public ResponseEntity<ApiResponse> createProduct(@Valid  @RequestBody  ProductRequest productRequest, Authentication authentication) {
+        return productService.createProduct(productRequest, authentication);
     }
 
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(
-            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize){
-        return productService.handleFetchProductsForAdmin(page, pageSize);
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int pageSize, Authentication authentication){
+        return productService.handleFetchProductsForAdmin(page, pageSize, authentication);
     }
 
 
