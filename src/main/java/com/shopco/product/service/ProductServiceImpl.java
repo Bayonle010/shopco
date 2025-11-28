@@ -121,7 +121,9 @@ public class ProductServiceImpl implements ProductService {
                             .build();
                 })
                 .toList();
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0,  "Products fetched successfully", content, "" ));
+
+        Map<String, Object> meta  = PaginationUtility.buildPaginationMetadata(productPage);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0,  "Products fetched successfully", content, meta ));
     }
 
     /**
