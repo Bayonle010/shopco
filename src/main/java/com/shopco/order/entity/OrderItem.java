@@ -1,9 +1,8 @@
-package com.shopco.order;
+package com.shopco.order.entity;
 
 import com.shopco.product.entity.ProductVariant;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.web.servlet.filter.OrderedRequestContextFilter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -28,5 +27,7 @@ public class OrderItem {
     private int quantity;
 
     private BigDecimal uniPrice;
+
+    private BigDecimal totalPrice;  //(unit price * quantity)
 
 }
