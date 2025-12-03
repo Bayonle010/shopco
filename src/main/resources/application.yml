@@ -59,3 +59,10 @@ cloudinary:
     secret: ${CLOUDINARY_API_SECRET}
   cloud:
     name: ${CLOUDINARY_CLOUD_NAME}
+
+
+monnify:
+  apiKey: ${MONNIFY_API_KEY}
+  secretKey: ${MONNIFY_SECRET_KEY}
+  contractCode: ${MONNIFY_CONTRACT_CODE}
+  uri: ${MONNIFY_BASE_URI}

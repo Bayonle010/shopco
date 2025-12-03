@@ -13,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "order_items")
+@Entity
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,9 +25,10 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY)
     private ProductVariant productVariant;
 
+    @Column(nullable = false)
     private int quantity;
 
-    private BigDecimal uniPrice;
+    private BigDecimal unitPrice;
 
     private BigDecimal totalPrice;  //(unit price * quantity)
 
