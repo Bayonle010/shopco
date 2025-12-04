@@ -1,6 +1,7 @@
 package com.shopco.user.service;
 
 import com.shopco.core.exception.AccessDeniedException;
+import com.shopco.core.exception.BadCredentialsException;
 import com.shopco.core.exception.ResourceNotFoundException;
 import com.shopco.user.entity.User;
 import com.shopco.user.enums.UserType;
@@ -36,5 +37,11 @@ public class UserServiceImpl implements UserService {
         } catch (AccessDeniedException ex) {
             return false;
         }
+    }
+
+    @Override
+    public User getAuthenticatedUser(Authentication authentication) {
+        String userEmail = authentication.getName();
+        return userRepository.findByEmail(userEmail).orElseThrow(() -> new BadCredentialsException("invalid user"));
     }
 }

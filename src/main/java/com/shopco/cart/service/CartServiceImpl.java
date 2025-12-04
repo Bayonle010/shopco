@@ -8,6 +8,7 @@ import com.shopco.cart.entity.Cart;
 import com.shopco.cart.entity.CartItem;
 import com.shopco.cart.repository.CartItemRepository;
 import com.shopco.cart.repository.CartRepository;
+import com.shopco.core.exception.AccessDeniedException;
 import com.shopco.core.exception.BadCredentialsException;
 import com.shopco.core.exception.IllegalArgumentException;
 import com.shopco.core.exception.ResourceNotFoundException;
@@ -19,6 +20,7 @@ import com.shopco.product.repository.ProductRepository;
 import com.shopco.product.repository.ProductVariantRepository;
 import com.shopco.user.entity.User;
 import com.shopco.user.repositories.UserRepository;
+import com.shopco.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -34,7 +36,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service("CartService")
 public class CartServiceImpl implements CartService{
 
@@ -45,6 +46,17 @@ public class CartServiceImpl implements CartService{
     private final ProductVariantRepository productVariantRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final UserService userService;
+
+    public CartServiceImpl(UserRepository userRepository, ProductRepository productRepository, ProductVariantRepository productVariantRepository, CartRepository cartRepository, CartItemRepository cartItemRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+        this.productVariantRepository = productVariantRepository;
+        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.userService = userService;
+    }
+
     /**
      * @param request 
      * @return
@@ -191,6 +203,31 @@ public class CartServiceImpl implements CartService{
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ResponseUtil.success(0, "cart item removed successfully", response, null));
 
+    }
+
+    @Override
+    public Cart findCartById(UUID cartId) {
+        return cartRepository.findById(cartId).orElseThrow(()-> new ResourceNotFoundException("cart not found"));
+    }
+
+    @Override
+    public boolean validateCartForAuthenticatedUser(Cart cart, Authentication authentication) {
+        User user = userService.getAuthenticatedUser(authentication);
+        if (!cart.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("access denied");
+        }
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Cart is empty");
+        }
+
+        // Check if stock is sufficient for each item in the cart
+        for (CartItem item : cart.getItems()) {
+            if (item.getProductVariant().getStock() < item.getQuantity()) {
+                throw new IllegalArgumentException("Insufficient stock for product: " + item.getProductVariant().getProduct().getName());
+            }
+        }
+        return true;
     }
 
 

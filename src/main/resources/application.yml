@@ -66,3 +66,4 @@ monnify:
   secretKey: ${MONNIFY_SECRET_KEY}
   contractCode: ${MONNIFY_CONTRACT_CODE}
   uri: ${MONNIFY_BASE_URI}
+  redirectUri: ${MONNIFY_REDIRECT_URI}

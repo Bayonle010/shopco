@@ -2,6 +2,7 @@ package com.shopco.cart.service;
 
 import com.shopco.cart.dto.request.CartRequest;
 import com.shopco.cart.dto.request.UpdateCartItemRequest;
+import com.shopco.cart.entity.Cart;
 import com.shopco.core.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,4 +15,7 @@ public interface CartService {
     ResponseEntity<ApiResponse> handleFetchCartForUser(Authentication authentication);
     ResponseEntity<ApiResponse> handleUpdateQuantityForCartItem(UUID cartItemId, UpdateCartItemRequest request, Authentication authentication);
     ResponseEntity<ApiResponse> handleRemoveCartItem(UUID cartItemId, Authentication authentication);
+    Cart findCartById(UUID carId);
+    boolean validateCartForAuthenticatedUser(Cart cart, Authentication authentication);
+
 }
