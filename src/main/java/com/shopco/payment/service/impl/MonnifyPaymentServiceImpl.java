@@ -2,7 +2,6 @@ package com.shopco.payment.service.impl;
 
 import com.shopco.cart.entity.Cart;
 import com.shopco.cart.service.CartService;
-import com.shopco.core.config.RestClientConfig;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.payment.builder.PaymentBuilder;
@@ -11,9 +10,7 @@ import com.shopco.payment.dto.response.AccessTokenResponse;
 import com.shopco.payment.dto.response.PaymentInitializationResponse;
 import com.shopco.payment.service.PaymentService;
 import com.shopco.payment.util.Base64FormatConversion;
-import com.shopco.user.entity.User;
 import com.shopco.user.service.UserService;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +24,7 @@ import org.springframework.web.client.RestClientResponseException;
 import java.util.UUID;
 
 @Service
-public class PaymentServiceImpl implements PaymentService {
+public class MonnifyPaymentServiceImpl implements PaymentService {
 
 
     @Value("${monnify.contractCode}")
@@ -36,15 +33,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${monnify.redirectUri}")
     private String redirectUri;
 
-    private final static Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(MonnifyPaymentServiceImpl.class);
 
     private final Base64FormatConversion base64FormatConversion;
     private final RestClient paymentRestClient;
     private final UserService userService;
     private final CartService cartService;
 
-    public PaymentServiceImpl(Base64FormatConversion base64FormatConversion,
-                              @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService) {
+    public MonnifyPaymentServiceImpl(Base64FormatConversion base64FormatConversion,
+                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService) {
         this.base64FormatConversion = base64FormatConversion;
         this.paymentRestClient = paymentRestClient;
         this.userService = userService;
