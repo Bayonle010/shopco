@@ -107,6 +107,9 @@ public class CartServiceImpl implements CartService{
         }
         cartItemRepository.save(line);
 
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart added successfully", "", null));
     }
@@ -166,6 +169,9 @@ public class CartServiceImpl implements CartService{
         snapShotFromProduct(cartItem);
         cartItemRepository.save(cartItem);
 
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
 
         CartResponse response = CartResponseBuilder.buildCartResponse(cart);
 
@@ -197,6 +203,9 @@ public class CartServiceImpl implements CartService{
         cart.getItems().remove(cartItem);
 
         cartItemRepository.delete(cartItem);
+
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
 
         CartResponse response = CartResponseBuilder.buildCartResponse(cart);
 
@@ -258,4 +267,22 @@ public class CartServiceImpl implements CartService{
                 .orElseGet(() -> cartRepository.save(Cart.builder().user(user).build()));
     }
 
+    private void recalculateCartTotals(Cart cart) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            cart.setTotalAmount(BigDecimal.ZERO);
+            return;
+        }
+
+        BigDecimal total = cart.getItems().stream()
+                .map(line -> {
+                    BigDecimal unit = line.getUnitPriceSnapshot() != null
+                            ? line.getUnitPriceSnapshot()
+                            : BigDecimal.ZERO;
+                    int qty = line.getQuantity() != null ? line.getQuantity() : 0;
+                    return unit.multiply(BigDecimal.valueOf(qty));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        cart.setTotalAmount(total);
+    }
 }
