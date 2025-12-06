@@ -21,7 +21,7 @@ public class PaymentBuilder {
         paymentMethods.add(PaymentMethods.ACCOUNT_TRANSFER.name());
 
         return PaymentInitializationRequest.builder()
-                .amount(calculateTotalAmount(cart))
+                .amount(cart.getTotalAmount())
                 .customerName(cart.getUser().getFirstname())
                 .customerEmail(cart.getUser().getEmail())
                 .paymentDescription("Order Payment")
