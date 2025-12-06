@@ -82,6 +82,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
         cartService.validateCartForAuthenticatedUser(cart, authentication);
 
         PaymentInitializationRequest request = PaymentBuilder.buildPaymentRequest(cart, contractCode, redirectUri);
+        logger.info("request to get checkout Url -->{}", request);
 
         try {
             PaymentInitializationResponse response = paymentRestClient.post()
