@@ -129,6 +129,9 @@ public class CartServiceImpl implements CartService{
             snapShotFromProduct(cartItem);
         }
 
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
         CartResponse response = CartResponseBuilder.buildCartResponse(cart);
 
         return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart details successfully fetched", response, null));
