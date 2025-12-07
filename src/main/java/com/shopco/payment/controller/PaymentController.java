@@ -5,10 +5,7 @@ import com.shopco.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -26,4 +23,10 @@ public class PaymentController {
     public ResponseEntity<ApiResponse> checkoutCart(@RequestParam UUID cartId, Authentication authentication){
         return paymentService.initializePayment(cartId, authentication);
     }
+
+//    @GetMapping("/monnify/redirect")
+//    public ResponseEntity<ApiResponse> handleRedirect(@RequestParam("paymentReference") String paymentReference) {
+//        // Option A: verify here directly
+//        return paymentService.handleMonnifyPaymentCompletion(paymentReference);
+//    }
 }

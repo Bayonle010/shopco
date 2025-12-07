@@ -1,6 +1,7 @@
 package com.shopco.payment.service;
 
 import com.shopco.core.response.ApiResponse;
+import com.shopco.payment.entity.PaymentTransaction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 

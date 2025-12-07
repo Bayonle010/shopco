@@ -8,8 +8,12 @@ import com.shopco.payment.builder.PaymentBuilder;
 import com.shopco.payment.dto.request.PaymentInitializationRequest;
 import com.shopco.payment.dto.response.AccessTokenResponse;
 import com.shopco.payment.dto.response.PaymentInitializationResponse;
+import com.shopco.payment.entity.PaymentTransaction;
+import com.shopco.payment.enums.PaymentStatus;
+import com.shopco.payment.repository.PaymentTransactionRepository;
 import com.shopco.payment.service.PaymentService;
 import com.shopco.payment.util.Base64FormatConversion;
+import com.shopco.user.entity.User;
 import com.shopco.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +43,15 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
     private final RestClient paymentRestClient;
     private final UserService userService;
     private final CartService cartService;
+    private final PaymentTransactionRepository paymentTransactionRepository;
 
     public MonnifyPaymentServiceImpl(Base64FormatConversion base64FormatConversion,
-                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService) {
+                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService, PaymentTransactionRepository paymentTransactionRepository) {
         this.base64FormatConversion = base64FormatConversion;
         this.paymentRestClient = paymentRestClient;
         this.userService = userService;
         this.cartService = cartService;
+        this.paymentTransactionRepository = paymentTransactionRepository;
     }
 
     @Override
@@ -77,6 +83,8 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
     @Override
     public ResponseEntity<ApiResponse> initializePayment(UUID cartId, Authentication authentication) {
 
+        User user = userService.getAuthenticatedUser(authentication);
+
         Cart cart = cartService.findCartById(cartId);
 
         cartService.validateCartForAuthenticatedUser(cart, authentication);
@@ -93,6 +101,32 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
                     .retrieve()
                     .body(PaymentInitializationResponse.class);
 
+            if (response == null || !response.requestSuccessful()) {
+                String details = response != null ? response.responseMessage() : "null response from Payment";
+                logger.error("Monnify init failed: {}", details);
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                        .body(ResponseUtil.error(99, "Failed to initialize payment", details, null));
+            }
+
+            var body = response.responseBody();
+            if (body == null || body.checkoutUrl() == null) {
+                logger.error("Monnify init returned no checkout URL. Response: {}", response);
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                        .body(ResponseUtil.error(99, "No checkout URL provided by payment provider", "", null));
+            }
+
+            // 4. Persist payment transaction (SRP: track link between cart and payment)
+            PaymentTransaction paymentTx = PaymentTransaction.builder()
+                    .cart(cart)
+                    //.user(user)
+                    .paymentReference(body.paymentReference())
+                    .transactionReference(body.transactionReference())
+                    .amount(cart.getTotalAmount())
+                    .status(PaymentStatus.INITIALIZED)
+                    .build();
+
+            paymentTransactionRepository.save(paymentTx);
+
             return ResponseEntity.ok(ResponseUtil.success(0, "Payment initialization successful", response, null));
 
         }catch (RestClientResponseException e) {
@@ -106,4 +140,5 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             throw new RuntimeException(e.getMessage());
         }
     }
+    
 }

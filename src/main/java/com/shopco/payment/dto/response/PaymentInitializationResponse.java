@@ -5,6 +5,7 @@ import java.util.List;
 public record PaymentInitializationResponse(
         boolean requestSuccessful,
         String responseCode,
+        String responseMessage,
         PaymentInitializationResponseBody responseBody
 ) {
 
