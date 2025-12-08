@@ -118,7 +118,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             // 4. Persist payment transaction (SRP: track link between cart and payment)
             PaymentTransaction paymentTx = PaymentTransaction.builder()
                     .cart(cart)
-                    //.user(user)
+                    .user(user)
                     .paymentReference(body.paymentReference())
                     .transactionReference(body.transactionReference())
                     .amount(cart.getTotalAmount())
@@ -140,5 +140,5 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             throw new RuntimeException(e.getMessage());
         }
     }
-    
+
 }
