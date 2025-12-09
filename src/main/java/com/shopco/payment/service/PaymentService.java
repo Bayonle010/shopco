@@ -12,5 +12,6 @@ public interface PaymentService {
     String getAccessTokenFromMonnify();
     ResponseEntity<ApiResponse> initializePayment(UUID cartId, Authentication authentication);
     ResponseEntity<ApiResponse> getTransactionStatus(String transactionReference);
+    ResponseEntity<ApiResponse> completeCheckout(String transactionReference);
 
 }

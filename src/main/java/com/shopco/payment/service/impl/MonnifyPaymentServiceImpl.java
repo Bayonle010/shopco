@@ -5,16 +5,19 @@ import com.shopco.cart.service.CartService;
 import com.shopco.core.exception.IllegalArgumentException;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
+import com.shopco.order.entity.Order;
 import com.shopco.payment.builder.PaymentBuilder;
 import com.shopco.payment.dto.request.PaymentInitializationRequest;
 import com.shopco.payment.dto.response.AccessTokenResponse;
+import com.shopco.payment.dto.response.CheckOutCompletionResponse;
 import com.shopco.payment.dto.response.MonnifyTransactionStatusResponse;
 import com.shopco.payment.dto.response.PaymentInitializationResponse;
 import com.shopco.payment.entity.PaymentTransaction;
 import com.shopco.payment.enums.PaymentStatus;
-import com.shopco.payment.repository.PaymentTransactionRepository;
 import com.shopco.payment.service.PaymentService;
+import com.shopco.payment.service.PaymentTransactionService;
 import com.shopco.payment.util.Base64FormatConversion;
+import com.shopco.payment.util.PaymentUtil;
 import com.shopco.user.entity.User;
 import com.shopco.user.service.UserService;
 import org.slf4j.Logger;
@@ -45,15 +48,15 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
     private final RestClient paymentRestClient;
     private final UserService userService;
     private final CartService cartService;
-    private final PaymentTransactionRepository paymentTransactionRepository;
+    private final PaymentTransactionService paymentTransactionService;
 
     public MonnifyPaymentServiceImpl(Base64FormatConversion base64FormatConversion,
-                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService, PaymentTransactionRepository paymentTransactionRepository) {
+                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService, PaymentTransactionService paymentTransactionService) {
         this.base64FormatConversion = base64FormatConversion;
         this.paymentRestClient = paymentRestClient;
         this.userService = userService;
         this.cartService = cartService;
-        this.paymentTransactionRepository = paymentTransactionRepository;
+        this.paymentTransactionService = paymentTransactionService;
     }
 
     @Override
@@ -126,7 +129,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
                     .status(PaymentStatus.INITIALIZED)
                     .build();
 
-            paymentTransactionRepository.save(paymentTx);
+            paymentTransactionService.save(paymentTx);
 
             return ResponseEntity.ok(ResponseUtil.success(0, "Payment initialization successful", response, null));
 
@@ -168,7 +171,77 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
         }
     }
 
+    @Override
+    public ResponseEntity<ApiResponse> completeCheckout(String transactionReference) {
+        try {
+            MonnifyTransactionStatusResponse statusResponse = fetchTransactionStatusFromProvider(transactionReference);
+            validateMonnifyStatusResponse(statusResponse);
 
+            MonnifyTransactionStatusResponse.Body body = statusResponse.responseBody();
+
+            //Validate if Payment is paid
+            validatePaymentIsPaid(body);
+
+            //Resolve Payment transaction from DB
+
+            PaymentTransaction paymentTransaction = paymentTransactionService.resolvePaymentTransaction(body.paymentReference());
+
+            // 4. Idempotency: if already PAID, do not recreate order
+            if (paymentTransaction.getStatus() == PaymentStatus.PAID) {
+                logger.info("Payment already marked as PAID for paymentReference={}", body.paymentReference());
+                // return existing Order if link is stored in future
+                return ResponseEntity.ok(
+                        ResponseUtil.success(0, "Payment already processed", null, null)
+                );
+            }
+
+            Cart cart = paymentTransaction.getCart();
+
+            //cartService.validateCartForAuthenticatedUser(cart, authentication);
+
+            cartService.validateAmountMatchesCart(body.amountPaid(), cart.getTotalAmount());
+
+            paymentTransactionService.updatePaymentAsPaid(paymentTransaction, body);
+
+            String confirmationCode = PaymentUtil.generate4DigitCode();
+
+            //Create Order from cart
+            Order order = orderService.createOrderFromCart(cart, confirmationCode);
+
+            cartService.clearCart(cart);
+
+            CheckOutCompletionResponse response = CheckOutCompletionResponse.builder()
+                    .orderId()
+                    .orderStatus()
+                    .confirmationCode()
+                    .
+                    .build();
+
+
+            return ResponseEntity.ok(ResponseUtil.success(0, "payment verified and order created", response, ""));
+
+        }catch (RestClientResponseException e) {
+            logger.error("Error verifying payment with Monnify", e);
+            return ResponseEntity.status(e.getStatusCode()).body(ResponseUtil.error(99,
+                            "Error verifying payment: " + e.getResponseBodyAsString(),
+                            "",
+                            null));
+        } catch (Exception e) {
+            logger.error("Unexpected error during checkout completion", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseUtil.error(500,
+                            "Unexpected error during checkout completion", e.getMessage(), null));
+        }
+    }
+
+
+    private void validatePaymentIsPaid(MonnifyTransactionStatusResponse.Body body) {
+        if (!"PAID".equalsIgnoreCase(body.paymentStatus())) {
+            throw new IllegalArgumentException(
+                    "Payment not completed. Current status: " + body.paymentStatus()
+            );
+        }
+    }
 
 
     private MonnifyTransactionStatusResponse fetchTransactionStatusFromProvider(String transactionReference) {

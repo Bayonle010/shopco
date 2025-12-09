@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import java.lang.annotation.Repeatable;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface CartService {
@@ -17,5 +18,7 @@ public interface CartService {
     ResponseEntity<ApiResponse> handleRemoveCartItem(UUID cartItemId, Authentication authentication);
     Cart findCartById(UUID carId);
     boolean validateCartForAuthenticatedUser(Cart cart, Authentication authentication);
+    void validateAmountMatchesCart(BigDecimal amountPaid, BigDecimal cartTotal);
+    void clearCart(Cart cart);
 
 }

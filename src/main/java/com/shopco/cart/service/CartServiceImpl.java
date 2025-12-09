@@ -242,6 +242,28 @@ public class CartServiceImpl implements CartService{
         return true;
     }
 
+    @Override
+    public void validateAmountMatchesCart(BigDecimal amountPaid, BigDecimal cartTotal) {
+        if (amountPaid == null) {
+            throw new IllegalArgumentException("Provider returned null amountPaid");
+        }
+        if (cartTotal == null || cartTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Cart total must be greater than zero");
+        }
+        if (amountPaid.compareTo(cartTotal) != 0) {
+            throw new IllegalArgumentException(
+                    "Paid amount does not match cart total. Paid=" + amountPaid + ", cartTotal=" + cartTotal
+            );
+        }
+    }
+
+    @Override
+    public void clearCart(Cart cart) {
+        cart.getItems().clear();
+        cart.setTotalAmount(BigDecimal.ZERO);
+        cartRepository.save(cart);
+    }
+
 
     private BigDecimal effectiveFrom(BigDecimal listingPrice, double discountPercent){
         if (listingPrice == null) return BigDecimal.ZERO;
