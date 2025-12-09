@@ -177,6 +177,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
     @Override
     public ResponseEntity<ApiResponse> completeCheckout(String transactionReference) {
         try {
+
             MonnifyTransactionStatusResponse statusResponse = fetchTransactionStatusFromProvider(transactionReference);
             validateMonnifyStatusResponse(statusResponse);
 
@@ -186,7 +187,6 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             validatePaymentIsPaid(body);
 
             //Resolve Payment transaction from DB
-
             PaymentTransaction paymentTransaction = paymentTransactionService.resolvePaymentTransaction(body.paymentReference());
 
             // 4. Idempotency: if already PAID, do not recreate order
@@ -234,6 +234,15 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
                     .body(ResponseUtil.error(500,
                             "Unexpected error during checkout completion", e.getMessage(), null));
         }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> completeCheckoutByPaymentReference(String paymentReference) {
+        PaymentTransaction paymentTransaction = paymentTransactionService.resolvePaymentTransaction(paymentReference);
+
+        String transactionReference = paymentTransaction.getTransactionReference();
+
+        return completeCheckout(transactionReference);
     }
 
 

@@ -13,5 +13,6 @@ public interface PaymentService {
     ResponseEntity<ApiResponse> initializePayment(UUID cartId, Authentication authentication);
     ResponseEntity<ApiResponse> getTransactionStatus(String transactionReference);
     ResponseEntity<ApiResponse> completeCheckout(String transactionReference);
+    ResponseEntity<ApiResponse> completeCheckoutByPaymentReference(String paymentReference);
 
 }

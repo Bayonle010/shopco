@@ -51,7 +51,7 @@ public class SecurityConfig {
             "/webjars/**",
             "/swagger-ui.html/**",
             "/api/v1/public/**",
-            "/api/v1/payments/monnnify/redirect/**",
+            "/api/v1/payments/monnify/redirect/**",
             "/ws/**"
     };
 

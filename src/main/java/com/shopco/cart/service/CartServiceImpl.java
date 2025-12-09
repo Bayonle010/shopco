@@ -259,9 +259,7 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public void clearCart(Cart cart) {
-        cart.getItems().clear();
-        cart.setTotalAmount(BigDecimal.ZERO);
-        cartRepository.save(cart);
+        cartRepository.delete(cart);
     }
 
 
