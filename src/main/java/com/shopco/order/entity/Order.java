@@ -38,6 +38,8 @@ public class Order {
     @Column(name = "cart_id")
     private UUID cartId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
     private OrderStatus orderStatus;
 
     private String confirmationCode;

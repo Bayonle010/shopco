@@ -14,12 +14,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Tag(name = "Carts")
 @RestController
 @RequestMapping("/api/v1/carts")
 public class CartController {
     private final CartService cartService;
+
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
+    }
 
 
     @Operation(summary = "add to cart")
