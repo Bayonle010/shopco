@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -29,18 +30,20 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
+    @Column(name = "cart_id")
+    private UUID cartId;
+
     private OrderStatus orderStatus;
 
     private String confirmationCode;
 
-    private LocalDateTime placedAt;
+    private Instant placedAt;
 
-    private LocalDateTime completedAt;
+    private Instant completedAt;
 
     private Status status;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
-
+    private Instant createdAt;
 
 }

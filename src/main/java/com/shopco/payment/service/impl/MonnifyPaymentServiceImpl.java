@@ -6,6 +6,7 @@ import com.shopco.core.exception.IllegalArgumentException;
 import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.order.entity.Order;
+import com.shopco.order.service.OrderService;
 import com.shopco.payment.builder.PaymentBuilder;
 import com.shopco.payment.dto.request.PaymentInitializationRequest;
 import com.shopco.payment.dto.response.AccessTokenResponse;
@@ -49,14 +50,16 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
     private final UserService userService;
     private final CartService cartService;
     private final PaymentTransactionService paymentTransactionService;
+    private final OrderService orderService;
 
     public MonnifyPaymentServiceImpl(Base64FormatConversion base64FormatConversion,
-                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService, PaymentTransactionService paymentTransactionService) {
+                                     @Qualifier("monnifyRestClient") RestClient paymentRestClient, UserService userService, CartService cartService, PaymentTransactionService paymentTransactionService, OrderService orderService) {
         this.base64FormatConversion = base64FormatConversion;
         this.paymentRestClient = paymentRestClient;
         this.userService = userService;
         this.cartService = cartService;
         this.paymentTransactionService = paymentTransactionService;
+        this.orderService = orderService;
     }
 
     @Override
@@ -196,9 +199,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             }
 
             Cart cart = paymentTransaction.getCart();
-
-            //cartService.validateCartForAuthenticatedUser(cart, authentication);
-
+            
             cartService.validateAmountMatchesCart(body.amountPaid(), cart.getTotalAmount());
 
             paymentTransactionService.updatePaymentAsPaid(paymentTransaction, body);
@@ -211,10 +212,10 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             cartService.clearCart(cart);
 
             CheckOutCompletionResponse response = CheckOutCompletionResponse.builder()
-                    .orderId()
-                    .orderStatus()
-                    .confirmationCode()
-                    .
+                    .orderId(order.getId())
+                    .orderStatus(order.getOrderStatus())
+                    .confirmationCode(order.getConfirmationCode())
+                    .cartId(order.getCartId())
                     .build();
 
 
