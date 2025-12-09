@@ -24,7 +24,7 @@ public class PaymentController {
         return paymentService.initializePayment(cartId, authentication);
     }
 
-    @GetMapping("/redirect")
+    @GetMapping("/monnnify/redirect")
     public ResponseEntity<ApiResponse> handleRedirect(@RequestParam("paymentReference") String paymentReference) {
         return paymentService.completeCheckout(paymentReference);
     }
