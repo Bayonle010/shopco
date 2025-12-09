@@ -25,11 +25,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -123,8 +125,13 @@ public class CartServiceImpl implements CartService{
         String authenticatedUserEmail = authentication.getName();
         User user = userRepository.findByEmail(authenticatedUserEmail).orElseThrow(()-> new BadCredentialsException("invalid user"));
 
-        Cart cart = cartRepository.findByUser_Id(user.getId()).orElseThrow(()-> new ResourceNotFoundException("no cart found for user"));
+        Optional<Cart> cartOptional = cartRepository.findByUser_Id(user.getId());
 
+        if (cartOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.success(0, "empty cart", "", ""));
+        }
+
+        Cart cart = cartOptional.get();
         for (CartItem cartItem : cart.getItems()){
             snapShotFromProduct(cartItem);
         }
