@@ -15,7 +15,6 @@ public record OrderSummaryResponse(
         String confirmationCode,
         Instant placedAt,
         Instant completedAt,
-        Status status,
         BigDecimal amount
 ) {
 }

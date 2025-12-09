@@ -37,7 +37,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse> getOrderItemsForAuthenticatedUserOrder(
             @PathVariable("orderId") UUID orderId,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "pageSize", defaultValue = "35") int pageSize,
             Authentication authentication
     ) {
         return orderService.fetchOrderItemsForAuthenticatedUserOrder(orderId, page, pageSize, authentication);

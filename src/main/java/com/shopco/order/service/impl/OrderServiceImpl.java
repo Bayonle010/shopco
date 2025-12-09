@@ -18,6 +18,7 @@ import com.shopco.user.entity.User;
 import com.shopco.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -59,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<ApiResponse> fetchOrdersForAuthenticatedUser(String status, int page, int pageSize, Authentication authentication) {
         User user = userService.getAuthenticatedUser(authentication);
 
-        OrderStatus filterStatus = resolveOrderStatus(status);
+        OrderStatus filterStatus = OrderStatus.fromString(status);
 
         Pageable pageable = PaginationUtility.createPageRequest(page, pageSize);
 
@@ -84,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByIdAndUser_Id(orderId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found for user"));
 
-        Pageable pageable = PaginationUtility.createPageRequest(page, pageSize);
+        Pageable pageable = PaginationUtility.createPageRequest(page, pageSize, Sort.by(Sort.Order.desc("id")));
 
         Page<OrderItem> itemPage = orderItemRepository.findByOrder_Id(order.getId(), pageable);
 
@@ -134,16 +135,16 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    private OrderStatus resolveOrderStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return null;
-        }
-        try {
-            // allow case-insensitive, e.g. "pending", "PENDING"
-            return OrderStatus.valueOf(status.toUpperCase());
-        } catch (com.shopco.core.exception.IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid order status: " + status);
-        }
-    }
+//    private OrderStatus resolveOrderStatus(String status) {
+//        if (status == null || status.isBlank()) {
+//            return null;
+//        }
+//        try {
+//            // allow case-insensitive, e.g. "pending", "PENDING"
+//            return OrderStatus.valueOf(status.toUpperCase());
+//        } catch (com.shopco.core.exception.IllegalArgumentException e) {
+//            throw new IllegalArgumentException("Invalid order status: " + status);
+//        }
+//    }
 
 }

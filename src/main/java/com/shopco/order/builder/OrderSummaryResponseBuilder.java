@@ -9,7 +9,7 @@ public class OrderSummaryResponseBuilder {
     public static OrderSummaryResponse toOrderSummaryResponse(Order order){
         return OrderSummaryResponse.builder()
                 .orderId(order.getId())
-                .status(order.getStatus())
+                .orderStatus(order.getOrderStatus())
                 .confirmationCode(order.getConfirmationCode())
                 .placedAt(order.getPlacedAt())
                 .completedAt(order.getCompletedAt())

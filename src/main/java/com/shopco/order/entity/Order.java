@@ -48,8 +48,6 @@ public class Order {
 
     private Instant completedAt;
 
-    private Status status;
-
     @CreationTimestamp
     private Instant createdAt;
 
