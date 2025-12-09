@@ -66,7 +66,6 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
                     .body(AccessTokenResponse.class);
 
             if (response != null && response.requestSuccessful()) {
-                logger.info("access token is : {}", response.responseBody().accessToken());
                 return response.responseBody().accessToken();
             } else {
                 // Handle other errors, you can throw an exception, log, or return a default value
