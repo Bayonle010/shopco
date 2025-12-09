@@ -199,7 +199,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
             }
 
             Cart cart = paymentTransaction.getCart();
-            
+
             cartService.validateAmountMatchesCart(body.amountPaid(), cart.getTotalAmount());
 
             paymentTransactionService.updatePaymentAsPaid(paymentTransaction, body);
