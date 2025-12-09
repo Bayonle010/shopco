@@ -216,6 +216,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
                     .orderStatus(order.getOrderStatus())
                     .confirmationCode(order.getConfirmationCode())
                     .cartId(order.getCartId())
+                    .amountPaid(order.getAmount())
                     .build();
 
 
@@ -262,12 +263,12 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
         }
 
         if (!response.requestSuccessful()) {
-            throw new com.shopco.core.exception.IllegalArgumentException(
+            throw new IllegalArgumentException(
                     "Provider status request failed: " + response.responseMessage()
             );
         }
         if (response.responseBody() == null) {
-            throw new com.shopco.core.exception.IllegalArgumentException("Provider status response body is empty");
+            throw new IllegalArgumentException("Provider status response body is empty");
         }
     }
 }

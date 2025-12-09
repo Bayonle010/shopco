@@ -42,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
 
     private Order buildOrderHeader(Cart cart, String confirmationCode) {
         return Order.builder()
+                .amount(cart.getTotalAmount())
                 .user(cart.getUser())
                 .cartId(cart.getId())
                 .orderStatus(OrderStatus.PENDING)
