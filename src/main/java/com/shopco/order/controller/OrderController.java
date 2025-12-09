@@ -2,6 +2,7 @@ package com.shopco.order.controller;
 
 
 import com.shopco.core.response.ApiResponse;
+import com.shopco.order.dto.request.CompleteOrderRequest;
 import com.shopco.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,5 +42,15 @@ public class OrderController {
             Authentication authentication
     ) {
         return orderService.fetchOrderItemsForAuthenticatedUserOrder(orderId, page, pageSize, authentication);
+    }
+
+
+    @PatchMapping("/{orderId}/complete")
+    public ResponseEntity<ApiResponse> completeOrderAsAdmin(
+            @PathVariable("orderId") UUID orderId,
+            @RequestBody CompleteOrderRequest request,
+            Authentication authentication
+    ) {
+        return orderService.completeOrderAsAdmin(orderId, request, authentication);
     }
 }

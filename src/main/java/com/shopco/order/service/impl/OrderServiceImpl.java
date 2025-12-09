@@ -6,8 +6,9 @@ import com.shopco.core.response.ApiResponse;
 import com.shopco.core.response.ResponseUtil;
 import com.shopco.core.utils.PaginationUtility;
 import com.shopco.order.builder.OrderSummaryResponseBuilder;
-import com.shopco.order.dto.OrderItemResponse;
-import com.shopco.order.dto.OrderSummaryResponse;
+import com.shopco.order.dto.request.CompleteOrderRequest;
+import com.shopco.order.dto.response.OrderItemResponse;
+import com.shopco.order.dto.response.OrderSummaryResponse;
 import com.shopco.order.entity.Order;
 import com.shopco.order.entity.OrderItem;
 import com.shopco.order.enums.OrderStatus;
@@ -99,6 +100,30 @@ public class OrderServiceImpl implements OrderService {
                 .body(ResponseUtil.success(0, "Order items fetched successfully", items, meta));
     }
 
+    @Override
+    public ResponseEntity<ApiResponse> completeOrderAsAdmin(UUID orderId, CompleteOrderRequest request, Authentication authentication) {
+        userService.verifyAdmin(authentication);
+
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        // 3. Validate that order can be completed
+        validateOrderCanBeCompleted(order);
+
+        // 4. Validate confirmation code
+        validateConfirmationCode(order, request.confirmationCode());
+
+        // 5. Mark as completed
+        markOrderAsCompleted(order);
+
+        orderRepository.save(order);
+
+        // 6. Build response DTO
+        OrderSummaryResponse response = OrderSummaryResponseBuilder.toOrderSummaryResponse(order);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseUtil.success(0, "Order marked as completed", response, null));
+    }
+
 
     private void validateCartNotEmpty(Cart cart) {
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
@@ -135,16 +160,44 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-//    private OrderStatus resolveOrderStatus(String status) {
-//        if (status == null || status.isBlank()) {
-//            return null;
-//        }
-//        try {
-//            // allow case-insensitive, e.g. "pending", "PENDING"
-//            return OrderStatus.valueOf(status.toUpperCase());
-//        } catch (com.shopco.core.exception.IllegalArgumentException e) {
-//            throw new IllegalArgumentException("Invalid order status: " + status);
-//        }
-//    }
+    private void validateOrderCanBeCompleted(Order order) {
+        if (order.getOrderStatus() == null) {
+            throw new IllegalArgumentException("Order status is not set");
+        }
+
+        switch (order.getOrderStatus()) {
+            case COMPLETED -> throw new IllegalArgumentException(
+                    "Order is already completed"
+            );
+            case CANCELLED -> throw new IllegalArgumentException(
+                    "Cancelled order cannot be completed"
+            );
+            default -> {
+                // PENDING, SHIPPED, etc. → allowed
+            }
+        }
+    }
+
+    private void validateConfirmationCode(Order order, String providedCode) {
+        if (providedCode == null || providedCode.isBlank()) {
+            throw new IllegalArgumentException("Confirmation code is required");
+        }
+
+        if (order.getConfirmationCode() == null || order.getConfirmationCode().isBlank()) {
+            throw new IllegalArgumentException(
+                    "Order does not have a confirmation code set"
+            );
+        }
+
+        if (!order.getConfirmationCode().equals(providedCode.trim())) {
+            throw new IllegalArgumentException("Invalid confirmation code");
+        }
+    }
+
+    private void markOrderAsCompleted(Order order) {
+        order.setOrderStatus(OrderStatus.COMPLETED);
+        order.setCompletedAt(Instant.now());
+    }
+
 
 }

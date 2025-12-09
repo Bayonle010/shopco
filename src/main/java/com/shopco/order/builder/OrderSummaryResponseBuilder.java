@@ -1,7 +1,7 @@
 package com.shopco.order.builder;
 
-import com.shopco.order.dto.OrderItemResponse;
-import com.shopco.order.dto.OrderSummaryResponse;
+import com.shopco.order.dto.response.OrderItemResponse;
+import com.shopco.order.dto.response.OrderSummaryResponse;
 import com.shopco.order.entity.Order;
 import com.shopco.order.entity.OrderItem;
 

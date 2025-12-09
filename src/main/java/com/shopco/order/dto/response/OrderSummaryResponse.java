@@ -1,7 +1,6 @@
-package com.shopco.order.dto;
+package com.shopco.order.dto.response;
 
 import com.shopco.order.enums.OrderStatus;
-import com.shopco.product.enums.Status;
 import lombok.Builder;
 
 import java.math.BigDecimal;

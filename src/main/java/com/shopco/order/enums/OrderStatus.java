@@ -5,7 +5,7 @@ import com.shopco.core.exception.IllegalArgumentException;
 import java.util.Arrays;
 
 public enum OrderStatus {
-    PENDING("Pending"), SHIPPED ("Shipped"), COMPLETED ("Completed");
+    PENDING("Pending"), SHIPPED ("Shipped"), COMPLETED ("Completed"), CANCELLED("Cancelled");
 
     private final String description;
 

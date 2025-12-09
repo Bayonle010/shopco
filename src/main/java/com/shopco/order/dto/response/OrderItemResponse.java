@@ -1,4 +1,4 @@
-package com.shopco.order.dto;
+package com.shopco.order.dto.response;
 
 import lombok.Builder;
 

@@ -2,6 +2,7 @@ package com.shopco.order.service;
 
 import com.shopco.cart.entity.Cart;
 import com.shopco.core.response.ApiResponse;
+import com.shopco.order.dto.request.CompleteOrderRequest;
 import com.shopco.order.entity.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,12 @@ public interface OrderService {
             UUID orderId,
             int page,
             int pageSize,
+            Authentication authentication
+    );
+
+    ResponseEntity<ApiResponse> completeOrderAsAdmin(
+            UUID orderId,
+            CompleteOrderRequest request,
             Authentication authentication
     );
 }
