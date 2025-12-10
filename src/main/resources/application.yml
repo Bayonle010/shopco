@@ -73,3 +73,9 @@ monnify:
   contractCode: ${MONNIFY_CONTRACT_CODE}
   uri: ${MONNIFY_BASE_URI}
   redirectUri: ${MONNIFY_REDIRECT_URI}
+
+
+app:
+  superadmin:
+    email: ${APP_SUPERADMIN_EMAIL}
+    password: ${APP_SUPERADMIN_PASSWORD}

@@ -255,7 +255,7 @@ public class MonnifyPaymentServiceImpl implements PaymentService {
     }
 
 
-    private MonnifyTransactionStatusResponse fetchTransactionStatusFromProvider(String transactionReference) {
+    public MonnifyTransactionStatusResponse fetchTransactionStatusFromProvider(String transactionReference) {
         return paymentRestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/v2/transactions/{transactionReference}")

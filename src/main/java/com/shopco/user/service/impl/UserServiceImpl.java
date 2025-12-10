@@ -1,4 +1,4 @@
-package com.shopco.user.service;
+package com.shopco.user.service.impl;
 
 import com.shopco.core.exception.AccessDeniedException;
 import com.shopco.core.exception.BadCredentialsException;
@@ -6,6 +6,7 @@ import com.shopco.core.exception.ResourceNotFoundException;
 import com.shopco.user.entity.User;
 import com.shopco.user.enums.UserType;
 import com.shopco.user.repositories.UserRepository;
+import com.shopco.user.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
