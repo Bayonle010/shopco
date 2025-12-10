@@ -22,9 +22,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 
         servers = {
+                @Server(description = "Test server", url = "https://shopco-5u4w.onrender.com"),
                 @Server(description = "localhost server ", url = "http://localhost:8081"),
-                //@Server(description = "localhost server for docker", url = "http://localhost:8080"),
-               // @Server(description = "Test server", url = "https://shopco.onrender.com")
+                @Server(description = "localhost server for docker", url = "http://localhost:8082")
         },
         security = {@SecurityRequirement(name = "bearerAuth")}
 )
