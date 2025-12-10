@@ -1,0 +1,65 @@
+services:
+  database:
+    image: postgres:17
+    container_name: shopco-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - shopco_pgdata:/var/lib/postgresql/data
+    networks:
+      - shopco-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shopco-app
+    restart: unless-stopped
+    depends_on:
+      - database
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # DB → Spring reads these in application(-docker).yml
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+
+      # Monnify
+      MONNIFY_API_KEY: ${MONNIFY_API_KEY}
+      MONNIFY_SECRET_KEY: ${MONNIFY_SECRET_KEY}
+      MONNIFY_CONTRACT_CODE: ${MONNIFY_CONTRACT_CODE}
+      MONNIFY_BASE_URI: ${MONNIFY_BASE_URI}
+      MONNIFY_REDIRECT_URI: ${MONNIFY_REDIRECT_URI}
+
+      # Mail
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER_NAME: ${MAIL_USER_NAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      # Cloudinary
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+
+      # Super admin
+      APP_SUPERADMIN_EMAIL: ${APP_SUPERADMIN_EMAIL}
+      APP_SUPERADMIN_PASSWORD: ${APP_SUPERADMIN_PASSWORD}
+    networks:
+      - shopco-net
+
+volumes:
+  shopco_pgdata:
+
+networks:
+  shopco-net:
+    driver: bridge
