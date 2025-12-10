@@ -2,12 +2,15 @@ package com.shopco.product.controller;
 
 import com.shopco.core.response.ApiResponse;
 import com.shopco.product.dto.request.PublicProductListParams;
+import com.shopco.product.enums.Category;
+import com.shopco.product.enums.Size;
 import com.shopco.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Tag(name = "Products")
@@ -53,8 +56,20 @@ public class ProductController {
     )
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse> handleFetchPublicProduct(@ModelAttribute PublicProductListParams params){
-        return productService.handleFetchProductForUsers(params);
+    public ResponseEntity<ApiResponse> handleFetchPublicProduct(
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(defaultValue = "35", required = false) int pageSize,
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String colors,
+            @RequestParam(required = false) Size size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice
+                                                                ){
+        return productService.handleFetchProductForUsers(page, pageSize, category, search, colors, size,
+                sort, minPrice, maxPrice
+        );
     }
 
 

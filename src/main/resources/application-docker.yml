@@ -1,0 +1,84 @@
+server:
+  port: 8082
+
+spring:
+  # Only active when profile=docker is set
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    # Defaults for docker-compose; can still be overridden by env
+    url: jdbc:postgresql://${DATABASE_HOST:database}:5432/${DATABASE_NAME:shopco_db_docker}
+    username: ${DATABASE_USER:user}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    baseline-version: 0
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    enabled: true
+
+  mail:
+    # For Docker you might use MailHog or a real SMTP – defaults below are safe-ish
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enabled: false
+            required: false
+
+  output:
+    ansi:
+      enabled: ALWAYS
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  file:
+    name: logger.log
+  level:
+    root: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+cloudinary:
+  api:
+    key: ${CLOUDINARY_API_KEY:dummy}
+    secret: ${CLOUDINARY_API_SECRET:dummy}
+  cloud:
+    name: ${CLOUDINARY_CLOUD_NAME:dummy}
+
+monnify:
+  apiKey: ${MONNIFY_API_KEY:dummy-api-key}
+  secretKey: ${MONNIFY_SECRET_KEY:dummy-secret}
+  contractCode: ${MONNIFY_CONTRACT_CODE:dummy-contract}
+  uri: ${MONNIFY_BASE_URI:https://sandbox.monnify.com}
+  redirectUri: ${MONNIFY_REDIRECT_URI:http://localhost:8082/api/v1/payments/monnify/redirect}
+
+app:
+  superadmin:
+    email: ${APP_SUPERADMIN_EMAIL:shopcoadmin@gmail.com}
+    password: ${APP_SUPERADMIN_PASSWORD:Shopco123#}

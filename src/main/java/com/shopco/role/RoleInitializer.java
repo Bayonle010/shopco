@@ -27,5 +27,9 @@ public class RoleInitializer implements CommandLineRunner {
         if (roleRepository.findByAuthority("ROLE_ADMIN").isEmpty()) {
             roleRepository.save(new Role("ROLE_ADMIN"));
         }
+
+        if (roleRepository.findByAuthority("ROLE_SUPER_ADMIN").isEmpty()) {
+            roleRepository.save(new Role("ROLE_SUPER_ADMIN"));
+        }
     }
 }

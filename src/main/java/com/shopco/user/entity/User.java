@@ -1,11 +1,10 @@
 package com.shopco.user.entity;
 
 import com.shopco.Authentication.token.Token;
-import com.shopco.review.Review;
 import com.shopco.role.Role;
+import com.shopco.user.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,6 +46,10 @@ public class User  implements UserDetails {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "user_type")
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
 
     private boolean isAccountNonExpired;
 

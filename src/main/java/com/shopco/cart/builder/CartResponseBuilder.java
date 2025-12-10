@@ -30,8 +30,8 @@ public class CartResponseBuilder {
         CartSummaryResponse summary = CartSummaryResponse.builder()
                 .subtotal(subtotal)
                 .discountTotal(itemDiscountTotal)
-                .shipping(BigDecimal.ZERO)      // fill when you add shipping
-                .tax(BigDecimal.ZERO)           // fill when you add tax
+                .shipping(BigDecimal.ZERO)      // fill when shipping is added
+                .tax(BigDecimal.ZERO)           // fill when  tax is added
                 .total(subtotal)
                 .build();
 

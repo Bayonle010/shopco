@@ -1,0 +1,95 @@
+services:
+  app:
+    build: .
+    container_name: shopco-app
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # DB → Spring reads these in application(-docker).yml
+      DATABASE_HOST: database
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+
+      # Monnify
+      MONNIFY_API_KEY: ${MONNIFY_API_KEY}
+      MONNIFY_SECRET_KEY: ${MONNIFY_SECRET_KEY}
+      MONNIFY_CONTRACT_CODE: ${MONNIFY_CONTRACT_CODE}
+      MONNIFY_BASE_URI: ${MONNIFY_BASE_URI}
+      MONNIFY_REDIRECT_URI: ${MONNIFY_REDIRECT_URI}
+
+      # Mail
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER_NAME: ${MAIL_USER_NAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      # Cloudinary
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+
+      # Super admin
+      APP_SUPERADMIN_EMAIL: ${APP_SUPERADMIN_EMAIL}
+      APP_SUPERADMIN_PASSWORD: ${APP_SUPERADMIN_PASSWORD}
+    networks:
+      - shopco-net
+
+  database:
+    image: postgres:17
+    container_name: shopco-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - shopco_pgdata:/var/lib/postgresql/data
+    networks:
+      - shopco-net
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DATABASE_USER}", "-d", "${DATABASE_NAME}"]
+      interval: 30s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  pgadmin:
+    container_name: shopco_pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_LISTEN_PORT=5050
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+      - ./docker_pgadmin_servers.json:/pgadmin4/servers.json
+    ports:
+      - "5050:5050"
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "/bin/echo 'db:${DATABASE_PORT}:*:${DATABASE_USER}:${DATABASE_PASSWORD}' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - shopco-net
+
+volumes:
+  shopco_pgdata:
+  pgadmin:
+
+networks:
+  shopco-net:
+    driver: bridge

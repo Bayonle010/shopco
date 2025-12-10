@@ -16,14 +16,17 @@ import com.shopco.product.dto.response.PublicProductResponse;
 import com.shopco.product.entity.Product;
 import com.shopco.product.entity.ProductVariant;
 import com.shopco.product.repository.ProductRepository;
+import com.shopco.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +37,18 @@ import java.util.stream.Collectors;
 @Service("ProductService")
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final UserService userService;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, UserService userService) {
         this.productRepository = productRepository;
+        this.userService = userService;
     }
 
 
     @Transactional
     @Override
-    public ResponseEntity<ApiResponse> createProduct(ProductRequest productRequest) {
+    public ResponseEntity<ApiResponse> createProduct(ProductRequest productRequest, Authentication authentication) {
+        userService.verifyAdmin(authentication);
 
         Product product = new Product();
         product.setName(productRequest.getName());
@@ -80,7 +86,8 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(int page, int pageSize) {
+    public ResponseEntity<ApiResponse> handleFetchProductsForAdmin(int page, int pageSize, Authentication authentication) {
+        userService.verifyAdmin(authentication);
 
         Pageable pageable = PaginationUtility.createPageRequest(page, pageSize);
 
@@ -121,24 +128,29 @@ public class ProductServiceImpl implements ProductService {
                             .build();
                 })
                 .toList();
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0,  "Products fetched successfully", content, "" ));
+
+        Map<String, Object> meta  = PaginationUtility.buildPaginationMetadata(productPage);
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0,  "Products fetched successfully", content, meta ));
     }
 
     /**
-     * @param params 
      * @return
      */
     @Override
-    public ResponseEntity<ApiResponse> handleFetchProductForUsers(PublicProductListParams params) {
+    public ResponseEntity<ApiResponse> handleFetchProductForUsers(
+            int page,
+            int pageSize,
+            Category category,
+            String search, String colors, Size size, String sort,
+            BigDecimal minPrice, BigDecimal maxPrice
+    ) {
 
-        Category category = Category.fromString(params.getCategory());
-        Size size = Size.fromString(params.getSize());
-        String q   = (params.getSearch() == null || params.getSearch().isBlank()) ? null : "%" + params.getSearch().trim().toLowerCase() + "%";
-        Pageable pageable = PaginationUtility.createPageRequest(params.getPage(), params.getPageSize(), mapSort(params.getSort()));
-        Set<String> colors = StringUtil.parseLowerCsv(params.getColors());
+        String q   = (search == null || search.isBlank()) ? null : "%" + search.trim().toLowerCase() + "%";
+        Pageable pageable = PaginationUtility.createPageRequest(page, pageSize, mapSort(sort));
+        Set<String> color = StringUtil.parseLowerCsv(colors);
 
         Page<Product> paginatedProduct = productRepository.findPublicPage(
-                category, q, params.getMinPrice(), params.getMaxPrice(), size, colors, pageable
+                category, q, minPrice, maxPrice, size, color, pageable
         );
 
         List<PublicProductResponse> response = paginatedProduct.getContent().stream().map(PublicProductResponseBuilder::toProduct).toList();

@@ -1,12 +1,10 @@
-package com.shopco.Authentication;
+package com.shopco.Authentication.controller;
 
-import com.shopco.Authentication.dto.AuthResponse;
 import com.shopco.Authentication.dto.RefreshTokenRequest;
 import com.shopco.Authentication.dto.SignInRequest;
 import com.shopco.Authentication.dto.SignUpRequest;
 import com.shopco.Authentication.service.impl.AuthServiceImpl;
 import com.shopco.core.response.ApiResponse;
-import com.shopco.core.response.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
@@ -14,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
