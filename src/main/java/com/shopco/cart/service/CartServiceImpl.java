@@ -1,0 +1,318 @@
+package com.shopco.cart.service;
+
+import com.shopco.cart.builder.CartResponseBuilder;
+import com.shopco.cart.dto.request.CartRequest;
+import com.shopco.cart.dto.request.UpdateCartItemRequest;
+import com.shopco.cart.dto.response.CartResponse;
+import com.shopco.cart.entity.Cart;
+import com.shopco.cart.entity.CartItem;
+import com.shopco.cart.repository.CartItemRepository;
+import com.shopco.cart.repository.CartRepository;
+import com.shopco.core.exception.AccessDeniedException;
+import com.shopco.core.exception.BadCredentialsException;
+import com.shopco.core.exception.IllegalArgumentException;
+import com.shopco.core.exception.ResourceNotFoundException;
+import com.shopco.core.response.ApiResponse;
+import com.shopco.core.response.ResponseUtil;
+import com.shopco.product.entity.Product;
+import com.shopco.product.entity.ProductVariant;
+import com.shopco.product.repository.ProductRepository;
+import com.shopco.product.repository.ProductVariantRepository;
+import com.shopco.user.entity.User;
+import com.shopco.user.repositories.UserRepository;
+import com.shopco.user.service.UserService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+
+import javax.swing.text.html.Option;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service("CartService")
+public class CartServiceImpl implements CartService{
+
+    private final Logger logger = LoggerFactory.getLogger(CartServiceImpl.class);
+
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final UserService userService;
+
+    public CartServiceImpl(UserRepository userRepository, ProductRepository productRepository, ProductVariantRepository productVariantRepository, CartRepository cartRepository, CartItemRepository cartItemRepository, UserService userService) {
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+        this.productVariantRepository = productVariantRepository;
+        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.userService = userService;
+    }
+
+    /**
+     * @param request 
+     * @return
+     */
+    @Transactional
+    @Override
+    public ResponseEntity<ApiResponse> handleAddItemToCart(CartRequest request, Authentication authentication) {
+        String authenticatedUserEmail = authentication.getName();
+        User user = userRepository.findByEmail(authenticatedUserEmail).orElseThrow(()-> new BadCredentialsException("invalid user"));
+
+        Product product = productRepository.findById(request.getProductId()).orElseThrow(
+                ()-> new ResourceNotFoundException("product not found"));
+
+        ProductVariant productVariant = productVariantRepository.findById(request.getProductVariantId()).orElseThrow(
+                ()-> new ResourceNotFoundException("product variant not found"));
+
+        logger.info("product id is ---->> {} ...... while product variant id is --->> {}", productVariant.getProduct().getId(), productVariant.getId());
+
+        if(!Objects.equals(productVariant.getProduct().getId(), product.getId())){
+            throw new IllegalArgumentException("product variant does not belong to product");
+        }
+
+        if ((productVariant.getStock() < request.getQuantity())){
+            throw new IllegalArgumentException("Insufficient stock for the selected variant");
+        }
+
+        Cart cart = resolveOrCreateCart(user);
+
+        Optional<CartItem> existing = cartItemRepository.findByCart_IdAndProduct_IdAndProductVariant_Id(cart.getId(), product.getId(), productVariant.getId());
+
+
+        CartItem line;
+        if (existing.isPresent()){
+            line = existing.get();
+            line.setQuantity(line.getQuantity() + request.getQuantity());
+            // refresh snapshots to current catalog policy
+            snapShotFromProduct(line);
+        }else {
+            line = CartItem.builder()
+                    .cart(cart)
+                    .product(product)
+                    .productVariant(productVariant)
+                   // .unitPriceSnapshot(unitPriceSnapshot)
+                    .quantity(request.getQuantity())
+                    .build();
+            snapShotFromProduct(line);
+            cart.getItems().add(line);
+        }
+        cartItemRepository.save(line);
+
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart added successfully", "", null));
+    }
+
+    /**
+     * @param authentication 
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleFetchCartForUser(Authentication authentication) {
+        String authenticatedUserEmail = authentication.getName();
+        User user = userRepository.findByEmail(authenticatedUserEmail).orElseThrow(()-> new BadCredentialsException("invalid user"));
+
+        Optional<Cart> cartOptional = cartRepository.findByUser_Id(user.getId());
+
+        if (cartOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ResponseUtil.success(0, "empty cart", "", ""));
+        }
+
+        Cart cart = cartOptional.get();
+        for (CartItem cartItem : cart.getItems()){
+            snapShotFromProduct(cartItem);
+        }
+
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
+        CartResponse response = CartResponseBuilder.buildCartResponse(cart);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart details successfully fetched", response, null));
+    }
+
+    /**
+     * @Param cartItemId
+     * @param request 
+     * @param authentication
+     * @return
+     */
+    @Override
+    public ResponseEntity<ApiResponse> handleUpdateQuantityForCartItem(UUID cartItemId, UpdateCartItemRequest request, Authentication authentication) {
+        if (request.quantity() <= 0){
+            throw new IllegalArgumentException("quantity be greater than zero");
+        }
+
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(()-> new BadCredentialsException("invalid user"));
+
+        Cart cart = cartRepository.findByUser_Id(user.getId()).orElseThrow(() -> new ResourceNotFoundException("cart does not exist for user"));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(()-> new ResourceNotFoundException("cart item not found"));
+
+        if (!Objects.equals(user.getId(), cart.getUser().getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    ResponseUtil.error(99, "Access denied to update cart", "cart item does not belong user", ""));
+        }
+
+        // validate stock rules
+        ProductVariant productVariant = cartItem.getProductVariant();
+        if (productVariant.getStock() < request.quantity()){
+            throw new IllegalArgumentException("Insufficient sock for selected variants");
+        }
+
+        //update quantity
+        cartItem.setQuantity(request.quantity());
+        snapShotFromProduct(cartItem);
+        cartItemRepository.save(cartItem);
+
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
+
+        CartResponse response = CartResponseBuilder.buildCartResponse(cart);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.success(0, "cart item updated", response, null));
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> handleRemoveCartItem(UUID cartItemId, Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new BadCredentialsException("invalid user"));
+
+        Cart cart = cartRepository.findByUser_Id(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("cart does not exist for user"));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("cart item not found"));
+
+        if (!Objects.equals(cartItem.getCart().getId(), cart.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    ResponseUtil.error(
+                            99,
+                            "Access denied to remove cart item",
+                            "cart item does not belong to user's cart",
+                            ""
+                    )
+            );
+        }
+
+        cart.getItems().remove(cartItem);
+
+        cartItemRepository.delete(cartItem);
+
+        recalculateCartTotals(cart);
+        cartRepository.save(cart);
+
+        CartResponse response = CartResponseBuilder.buildCartResponse(cart);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseUtil.success(0, "cart item removed successfully", response, null));
+
+    }
+
+    @Override
+    public Cart findCartById(UUID cartId) {
+        return cartRepository.findById(cartId).orElseThrow(()-> new ResourceNotFoundException("cart not found"));
+    }
+
+    @Override
+    public boolean validateCartForAuthenticatedUser(Cart cart, Authentication authentication) {
+        User user = userService.getAuthenticatedUser(authentication);
+        if (!cart.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("access denied");
+        }
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Cart is empty");
+        }
+
+        // Check if stock is sufficient for each item in the cart
+        for (CartItem item : cart.getItems()) {
+            if (item.getProductVariant().getStock() < item.getQuantity()) {
+                throw new IllegalArgumentException("Insufficient stock for product: " + item.getProductVariant().getProduct().getName());
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void validateAmountMatchesCart(BigDecimal amountPaid, BigDecimal cartTotal) {
+        if (amountPaid == null) {
+            throw new IllegalArgumentException("Provider returned null amountPaid");
+        }
+        if (cartTotal == null || cartTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Cart total must be greater than zero");
+        }
+        if (amountPaid.compareTo(cartTotal) != 0) {
+            throw new IllegalArgumentException(
+                    "Paid amount does not match cart total. Paid=" + amountPaid + ", cartTotal=" + cartTotal
+            );
+        }
+    }
+
+    @Override
+    public void clearCart(Cart cart) {
+        cartRepository.delete(cart);
+    }
+
+
+    private BigDecimal effectiveFrom(BigDecimal listingPrice, double discountPercent){
+        if (listingPrice == null) return BigDecimal.ZERO;
+        BigDecimal pct = BigDecimal.valueOf(discountPercent);
+        if (pct.compareTo(BigDecimal.ZERO) <= 0) return listingPrice;
+
+        return listingPrice.subtract(listingPrice.multiply(pct).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+    }
+
+    private void snapShotFromProduct(CartItem cartItem){
+        var product = cartItem.getProduct();
+        var p = cartItem.getProduct();
+
+        BigDecimal list = p.getPrice() ;
+        BigDecimal unit = effectiveFrom(list, p.getDiscount());
+        BigDecimal pct  = BigDecimal.valueOf(p.getDiscount());
+
+        cartItem.setListPriceSnapshot(list);
+        cartItem.setUnitPriceSnapshot(unit);
+        cartItem.setDiscountPercentSnapshot(pct);
+        if (cartItem.getCurrency() == null) cartItem.setCurrency("NGN");
+    }
+
+    private Cart resolveOrCreateCart(User user){
+        return cartRepository.findByUser_Id(user.getId())
+                .orElseGet(() -> cartRepository.save(Cart.builder().user(user).build()));
+    }
+
+    private void recalculateCartTotals(Cart cart) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            cart.setTotalAmount(BigDecimal.ZERO);
+            return;
+        }
+
+        BigDecimal total = cart.getItems().stream()
+                .map(line -> {
+                    BigDecimal unit = line.getUnitPriceSnapshot() != null
+                            ? line.getUnitPriceSnapshot()
+                            : BigDecimal.ZERO;
+                    int qty = line.getQuantity() != null ? line.getQuantity() : 0;
+                    return unit.multiply(BigDecimal.valueOf(qty));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        cart.setTotalAmount(total);
+    }
+}
