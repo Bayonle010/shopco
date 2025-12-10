@@ -38,6 +38,11 @@ public class SuperAdminBootStrapServiceImpl implements SuperAdminBootStrapServic
     @Override
     public void createSuperAdminAccount() {
         String email = normalize(superAdminProperties.getEmail());
+
+        if (userRepository.existsByEmail(email)){
+            return;
+        }
+
         String rawPassword = superAdminProperties.getPassword();
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new IllegalStateException("APP_SUPERADMIN_PASSWORD is missing.");
@@ -45,8 +50,11 @@ public class SuperAdminBootStrapServiceImpl implements SuperAdminBootStrapServic
 
         String encoded = passwordEncoder.encode(rawPassword);
 
-        Role role = roleRepository.findByAuthority("ROLE_SUPER_ADMIN")
-                .orElseThrow(() -> new IllegalStateException("ROLE_SUPER_ADMIN not found"));
+        if (roleRepository.findByAuthority("ROLE_SUPER_ADMIN").isEmpty()) {
+            roleRepository.save(new Role("ROLE_SUPER_ADMIN"));
+        }
+
+        Role role = roleRepository.findByAuthority("ROLE_SUPER_ADMIN").get();
 
         User admin = User.builder()
                 .firstname("Super")
